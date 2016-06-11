@@ -79,7 +79,7 @@ class EmailMessage(models.Model):
 
 
 class SurveyResponse(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE,
+    person = models.ForeignKey(Person, on_delete=models.SET_NULL,
                                null=True, blank=True)
     time = models.DateTimeField()
     name = models.CharField(max_length=200)
@@ -104,7 +104,7 @@ class Registration(models.Model):
     SHOWS = [('first', 'Første'), ('second', 'Anden'), ('none', 'Ingen'),
              ('refund', 'Refunderet')]
 
-    person = models.ForeignKey(Person, on_delete=models.CASCADE,
+    person = models.ForeignKey(Person, on_delete=models.SET_NULL,
                                null=True, blank=True)
     time = models.DateTimeField()
     survey_id = models.CharField(max_length=200)
