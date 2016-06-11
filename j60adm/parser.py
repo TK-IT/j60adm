@@ -7,12 +7,12 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
-def parse_addresses_emails(s):
+def parse_addresses_emails(csv_text):
     from j60adm.models import (
         Association, Person, Title, EmailAddress, EmailMessage)
 
     association = Association.get()
-    reader = csv.reader([s], dialect='excel-tab')
+    reader = csv.reader(csv_text.splitlines(True), dialect='excel-tab')
     rows = iter(reader)
     header = next(rows)
     expected_header = [
@@ -45,9 +45,9 @@ def parse_addresses_emails(s):
     return persons, titles + email_addresses + email_messages
 
 
-def parse_survey_responses(s):
+def parse_survey_responses(csv_text):
     from j60adm.models import SurveyResponse
-    reader = csv.reader([s], dialect='excel-tab')
+    reader = csv.reader(csv_text.splitlines(True), dialect='excel-tab')
     rows = iter(reader)
     header = next(rows)
     expected_header = [
@@ -59,6 +59,10 @@ def parse_survey_responses(s):
             (expected_header, header))
     survey_responses = []
     for row in rows:
+        if not any(row):
+            continue
+        if len(row) < 6:
+            raise ValidationError("Expected at least 6 cells: %r" % (row,))
         time, name, title, email, newsletter, note = row[:6]
         mo = re.match(r'(\d+)/(\d+)/(\d+) (\d+):(\d+):(\d+)', time)
         month, day, year, hour, minute, second = mo.groups()
@@ -146,19 +150,26 @@ def get_registration_people(sections):
         header = ['ID', 'Fornavn', 'Efternavn', 'Adresse', 'Postnr/by',
                   'Email', 'Ansættelsessted', 'Stilling', 'Tilmeldingsdato',
                   'Antal', 'Stykpris', '', 'Rabat', 'Betalt', 'Markedsføring',
-                  'Er du vegetar, allergiker, eller lignende? ' +
-                  'Hvis ja, anfør det her:',
-                  'Er du gangbesværet, og har du ikke selv mulighed ' +
-                  'for at transportere\ndig mellem Matematisk Institut ' +
-                  'og Stakladen (ca. 650 m)?\nHvis ja, så anfør det her, ' +
-                  'og så forsøger vi at arrangere transport:',
-                  '5. Ønsker du at modtage vores J60-nyhedsbrev og ' +
-                  'få informationer om salg\naf merchandise, arrangementer ' +
-                  'i jubilæumsugen, og lignende (maks. 1\nemail om måneden)?',
-                  'Note']
+                  # 'Er du vegetar, allergiker, eller lignende? ' +
+                  # 'Hvis ja, anfør det her:',
+                  # 'Er du gangbesværet, og har du ikke selv mulighed ' +
+                  # 'for at transportere\ndig mellem Matematisk Institut ' +
+                  # 'og Stakladen (ca. 650 m)?\nHvis ja, så anfør det her, ' +
+                  # 'og så forsøger vi at arrangere transport:',
+                  # '5. Ønsker du at modtage vores J60-nyhedsbrev og få ' +
+                  # 'informationer om salg\naf merchandise, arrangementer i ' +
+                  # 'jubilæumsugen, og lignende (maks. 1\nemail om måneden)?',
+                  # 'Note',
+                  ]
         first_row = rows[0]
-        if first_row != header:
-            raise ValidationError("Expected %r, got %r" % (header, first_row))
+        if first_row[:len(header)] != header:
+            raise ValidationError("Expected %r, got %r" %
+                                  (header, first_row[:len(header)]))
+        if len(first_row) != len(header) + 4:
+            raise ValidationError("Expected %s columns, got %s" %
+                                  (len(header) + 4, len(first_row)))
+        if first_row[-1] != 'Note':
+            raise ValidationError("Expected 'Note', got %s" % (first_row[-1],))
         for row in rows[1:]:
             id = row[0]
             try:
@@ -191,17 +202,22 @@ def parse_registration_time(time):
 
 
 def make_registration(data):
+    from j60adm.models import Registration
+
     main_row, shows_rows = data
+    if len(main_row) != 17:
+        raise ValidationError("Expected 17 columns, got %s: %s" %
+                              (len(main_row), main_row))
     (id, first_name, last_name, _1, _2, email, _3, _4, time,
-     _5, _6, _7, _8, _9, _10, note) = main_row
+     _5, _6, _7, _8, _9, _10, note, refund_note) = main_row[:17]
     if len(shows_rows) == 0:
         dietary = ''
         newsletter = False
         transportation = False
-        if note.startswith('Krediteret'):
+        if refund_note.startswith('Krediteret'):
             show = 'refund'
         else:
-            raise ValidationError("No shows and no refund")
+            raise ValidationError("No shows and no refund: %r" % (main_row[:16],))
     elif len(shows_rows) == 1:
         (show, show_row), = shows_rows.items()
         dietary, transportation, newsletter = show_row[15:18]
@@ -211,10 +227,11 @@ def make_registration(data):
     return Registration(
         time=time, survey_id=id, first_name=first_name, last_name=last_name,
         email=email, dietary=dietary, newsletter=newsletter,
-        transportation=transportation, show=show, webshop_show=show, note=note)
+        transportation=transportation, show=show, webshop_show=show,
+        note=note + refund_note)
 
 
-def parse_registration(csv_text):
+def parse_registrations(csv_text):
     sections = extract_registration_sections(csv_text)
     people = get_registration_people(sections)
     registrations = [make_registration(d) for d in people.values()]

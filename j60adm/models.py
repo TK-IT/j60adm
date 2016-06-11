@@ -1,5 +1,4 @@
-# vim: set fileencoding=utf8:
-from __future__ import unicode_literals
+# vim: set fileencoding=utf8: from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
@@ -100,6 +99,7 @@ ID;Fornavn;Efternavn;Adresse;Postnr/by;Email;Ansættelsessted;Stilling;Tilmeldin
 """
 
 
+@python_2_unicode_compatible
 class Registration(models.Model):
     SHOWS = [('first', 'Første'), ('second', 'Anden'), ('none', 'Ingen'),
              ('refund', 'Refunderet')]
@@ -119,3 +119,12 @@ class Registration(models.Model):
     webshop_show = models.CharField(max_length=200, choices=SHOWS)
 
     note = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        repr_parts = [
+            self.show, 'name=%s %s' % (self.first_name, self.last_name)]
+        if self.dietary:
+            repr_parts.append('dietary=%r' % (self.dietary,))
+        if self.transportation:
+            repr_parts.append('dietary=%r' % (self.transportation,))
+        return "<Registration %s>" % ' '.join(repr_parts)

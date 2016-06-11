@@ -15,7 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from j60adm.views import (
+    RegistrationImport, RegistrationList,
+    SurveyResponseImport, SurveyResponseList,
+)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^survey/import/$', SurveyResponseImport.as_view(),
+        name='survey_response_import'),
+    url(r'^survey/$', SurveyResponseList.as_view(),
+        name='survey_response_list'),
+    url(r'^registration/import/$', RegistrationImport.as_view(),
+        name='registration_import'),
+    url(r'^registration/$', RegistrationList.as_view(),
+        name='registration_list'),
 ]
