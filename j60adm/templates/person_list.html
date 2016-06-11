@@ -1,5 +1,10 @@
 <ul>
-{% for object in object_list %}
-<li>{{object}}</li>
+{% for person in object_list %}
+<li>
+    {% for t in person.title_set.all %}
+    {{ t }}
+    {% endfor %}
+    {{ person.name }}
+</li>
 {% endfor %}
 </ul>
