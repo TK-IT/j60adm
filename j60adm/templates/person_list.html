@@ -2,12 +2,16 @@
 <html>
 <head>
 <title>Personer</title>
+<style>
+td {border-bottom: 1px solid #ccc; }
+</style>
 </head>
 <body>
 <table>
 <thead>
 <tr>
-    <th>Titel</th><th>Navn</th><th>Emailadresse</th>
+    <th>Titel</th><th>Navn</th>
+    <th><a href="{% url 'email' %}">Emailadresse</a></th>
     <th><a href="{% url 'registration_list' %}">Billetsalg</a></th>
     <th><a href="{% url 'survey_response_list' %}">Nyhedsbrev</a></th>
 </tr>
@@ -22,13 +26,17 @@
 <td>{{ person }}</td>
 <td>
 {% for e in person.emailaddress_set.all %}
+<span title="{{ e.source }}">
 {{ e.address }}
+</span>
 {% for m in e.emailmessage_set.all %}
+<span title="{{ m.created_time }}">
 {% if m.bounce %}
 X
 {% else %}
 &#x2713;
 {% endif %}
+</span>
 {% endfor %}
 {% endfor %}
 </td>

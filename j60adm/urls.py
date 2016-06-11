@@ -20,7 +20,8 @@ from j60adm.views import (
     PersonImport, PersonList,
     RegistrationImport, RegistrationList,
     SurveyResponseImport, SurveyResponseList,
-    Email,
+    Email, EmailAddressCreate, EmailSynchronize,
+    EmailMessageCreate, EmailMessageBulkCreate,
 )
 
 
@@ -40,6 +41,14 @@ urlpatterns = [
         name='registration_list'),
     url(r'^email/$', Email.as_view(),
         name='email'),
+    url(r'^email/sync/$', EmailSynchronize.as_view(),
+        name='email_synchronize'),
+    url(r'^emailaddress/add/(?P<person>\d+)/$', EmailAddressCreate.as_view(),
+        name='emailaddress_create'),
+    url(r'^emailmessage/add/(?P<address>\d+)/$', EmailMessageCreate.as_view(),
+        name='emailmessage_create'),
+    url(r'^emailmessage/add/$', EmailMessageBulkCreate.as_view(),
+        name='emailmessage_bulkcreate'),
 ]
 
 # if settings.DEBUG:

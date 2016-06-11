@@ -1,4 +1,4 @@
-from j60adm.models import Person
+from j60adm.models import Person, EmailAddress
 
 
 def synchronize_addresses(qs=None):
@@ -9,15 +9,17 @@ def synchronize_addresses(qs=None):
 
     create = []
     for person in qs:
-        addys = set(e.address for e in person.emailaddress_set)
+        addys = set(e.address for e in person.emailaddress_set.all())
         for r in person.registration_set.all():
-            if r.email not in addys:
+            a = r.email.lower().strip()
+            if a not in addys:
                 create.append(EmailAddress(
-                    person=person, address=r.email, source='Registration'))
-                addys.add(r.email)
+                    person=person, address=a, source='Registration'))
+                addys.add(a)
         for r in person.surveyresponse_set.all():
-            if r.email not in addys:
+            a = r.email.lower().strip()
+            if a not in addys:
                 create.append(EmailAddress(
-                    person=person, address=r.email, source='Survey'))
-                addys.add(r.email)
+                    person=person, address=a, source='Survey'))
+                addys.add(a)
     EmailAddress.objects.bulk_create(create)

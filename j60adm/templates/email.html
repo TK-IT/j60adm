@@ -1,12 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Personer</title>
+<title>Email</title>
 </head>
 <body>
+<form method="post" action="{% url 'email_synchronize' %}">{% csrf_token %}
+<input type="submit" value="Synkronisér med billetsalg og nyhedsbrev-formular" />
+</form>
+
+<form method="post" action="{% url 'emailmessage_bulkcreate' %}">{% csrf_token %}
+<p>
+{{ n_new }} nye modtagere:
+</p>
+<p>
+<textarea name='recipients' cols="50" rows="10">{{ recipients }}</textarea>
+</p>
+<p>
+<input type="submit" value="Jeg har sendt invitation til ovenstående" />
+</p>
+</form>
+
+<p>
+{{ n_sent }} gæster har modtaget invitation.<br />
+{{ n_none }} gæster har ingen registreret emailadresse, og<br />
+{{ n_bounce }} gæsters emailadresser har bouncet.
+</p>
+
 <ul>
 {% for person in person_list %}
 <li>{{ person.title_and_name }}
+    <a href="{% url 'emailaddress_create' person=person.pk %}">+</a>
     <ul>
     {% for a in person.emailaddress_set.all %}
     <li>{{ a }}
@@ -19,6 +42,7 @@
         {% endif %}
         </span>
         {% endfor %}
+        <a href="{% url 'emailmessage_create' address=a.pk %}">+</a>
     </li>
     {% endfor %}
     </ul>

@@ -45,7 +45,7 @@ def parse_addresses_emails(csv_text):
         titles.append(Title(person=person, title=title, period=period))
         if email:
             email_addresses.append(EmailAddress(
-                person=person, address=email, source='j60adr'))
+                person=person, address=email.lower().strip(), source='j60adr'))
             email_messages.append(EmailMessage(
                 address=email_addresses[-1], bounce=bounce))
     return persons, titles + email_addresses, email_messages

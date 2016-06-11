@@ -1,10 +1,15 @@
-from django.views.generic import FormView, ListView, TemplateView
-from django.shortcuts import redirect
-from django.db.models import Count
+from django.views.generic import FormView, ListView, TemplateView, View
+from django.shortcuts import redirect, get_object_or_404
 
-from j60adm.models import Registration, SurveyResponse, Person
+from j60adm.models import (
+    Registration, SurveyResponse, Person,
+    EmailAddress, EmailMessage,
+)
 from j60adm.forms import (
-    RegistrationImportForm, SurveyResponseImportForm, PersonImportForm)
+    RegistrationImportForm, SurveyResponseImportForm, PersonImportForm,
+    EmailAddressCreateForm, EmailMessageCreateForm, EmailMessageBulkCreateForm,
+)
+from j60adm.addresses import synchronize_addresses
 
 
 class PersonImport(FormView):
@@ -116,15 +121,95 @@ class Email(TemplateView):
                 continue
             message_sets = [list(a.emailmessage_set.all()) for a in addresses]
             any_new = any(not message_set for message_set in message_sets)
-            any_sent = any(not message.bounce
-                           for message_set in message_sets
-                           for message in message_set)
-            if any_new:
-                by_state['new'].append(p)
-            elif any_sent:
+            any_sent = any(any(not message.bounce for message in message_set)
+                           for message_set in message_sets)
+            if any_sent:
                 by_state['sent'].append(p)
+            elif any_new:
+                by_state['new'].append(p)
             else:
                 by_state['bounce'].append(p)
+        recipients = []
+        for p in by_state['new']:
+            emailaddress = next(
+                a.address for a in p.emailaddress_set.all()
+                if not list(a.emailmessage_set.all()))
+            recipients.append('"%s" <%s>' % (p.name, emailaddress))
+        context_data['recipients'] = ',\n'.join(recipients)
+        context_data['n_new'] = len(by_state['new'])
+        context_data['n_bounce'] = len(by_state['bounce'])
+        context_data['n_none'] = len(by_state['none'])
+        context_data['n_sent'] = len(by_state['sent'])
         context_data['person_list'] = (by_state['new'] + by_state['bounce'] +
                                        by_state['none'] + by_state['sent'])
         return context_data
+
+
+class EmailMessageCreate(FormView):
+    form_class = EmailMessageCreateForm
+    template_name = 'emailmessage_create.html'
+
+    def get_emailaddress(self):
+        return get_object_or_404(EmailAddress, pk=self.kwargs['address'])
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['emailaddress'] = self.get_emailaddress()
+        return context_data
+
+    def form_valid(self, form):
+        EmailMessage(
+            recipient=self.get_emailaddress(),
+            bounce=form.cleaned_data['bounce']).save()
+        return redirect('email')
+
+
+class EmailAddressCreate(FormView):
+    form_class = EmailAddressCreateForm
+    template_name = 'emailaddress_create.html'
+
+    def get_person(self):
+        return get_object_or_404(Person, pk=self.kwargs['person'])
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['person'] = self.get_person()
+        return context_data
+
+    def form_valid(self, form):
+        EmailAddress(
+            person=self.get_person(),
+            address=form.cleaned_data['address'],
+            source='Manually entered').save()
+        return redirect('email')
+
+
+class EmailMessageBulkCreate(FormView):
+    form_class = EmailMessageBulkCreateForm
+    template_name = 'emailmessage_bulkcreate.html'
+
+    def form_valid(self, form):
+        a = form.cleaned_data['recipients']
+        qs = EmailAddress.objects.filter(address__in=a)
+        o = {e.address: e for e in qs}
+        m = []
+        errors = 0
+        for address in a:
+            try:
+                m.append(EmailMessage(
+                    recipient=o.pop(address),
+                    bounce=False))
+            except KeyError:
+                form.add_error('recipients',
+                               'Jeg kender ikke adressen %s' % address)
+                errors += 1
+        if errors:
+            return self.form_invalid(form)
+        EmailMessage.objects.bulk_create(m)
+        return redirect('email')
+
+
+class EmailSynchronize(View):
+    def post(self, request):
+        synchronize_addresses()
+        return redirect('email')
