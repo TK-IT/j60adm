@@ -111,9 +111,9 @@ def extract_registration_sections(csv_text):
 
 def get_registration_people(sections):
     shows = {
-        'Jeg kan desværre ikke komme til revyen': 'Ingen',
-        'Revyforestillingen kl. 13.30': 'Første',
-        'Revyforestillingen kl. 16.00': 'Anden',
+        'Jeg kan desværre ikke komme til revyen': 'none',
+        'Revyforestillingen kl. 13.30': 'first',
+        'Revyforestillingen kl. 16.00': 'second',
     }
 
     if len(sections) != 1 + len(shows):

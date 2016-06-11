@@ -101,7 +101,8 @@ ID;Fornavn;Efternavn;Adresse;Postnr/by;Email;Ansættelsessted;Stilling;Tilmeldin
 
 
 class Registration(models.Model):
-    SHOWS = ['Første', 'Anden', 'Ingen']
+    SHOWS = [('first', 'Første'), ('second', 'Anden'), ('none', 'Ingen'),
+             ('refund', 'Refunderet')]
 
     person = models.ForeignKey(Person, on_delete=models.CASCADE,
                                null=True, blank=True)
