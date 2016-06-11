@@ -1,5 +1,8 @@
+import logging
 from django.views.generic import FormView, ListView, TemplateView, View
 from django.shortcuts import redirect, get_object_or_404
+from django.utils.decorators import method_decorator
+import django.contrib.auth.decorators
 
 from j60adm.models import (
     Registration, SurveyResponse, Person,
@@ -11,21 +14,34 @@ from j60adm.forms import (
 )
 from j60adm.addresses import synchronize_addresses
 
+logger = logging.getLogger('j60adm')
 
+login_required = method_decorator(
+    django.contrib.auth.decorators.login_required(login_url='/login/'),
+    name='dispatch')
+
+
+@login_required
 class PersonImport(FormView):
     form_class = PersonImportForm
     template_name = 'person_import.html'
 
     def form_valid(self, form):
-        persons, objects = form.cleaned_data['persons']
+        persons, objects, messages = form.cleaned_data['persons']
+        logger.info("PersonImport importing %s persons", len(persons),
+                    extra=self.request.log_data)
         for p in persons:
             p.save()
         for o in objects:
             o.person = o.person  # Update o.person_id
             o.save()
+        for m in messages:
+            m.recipient = o.recipient  # Update o.recipient_id
+            m.save()
         return redirect('person_list')
 
 
+@login_required
 class PersonList(ListView):
     template_name = 'person_list.html'
 
@@ -37,16 +53,21 @@ class PersonList(ListView):
         return qs
 
 
+@login_required
 class RegistrationImport(FormView):
     form_class = RegistrationImportForm
     template_name = 'registration_import.html'
 
     def form_valid(self, form):
-        for reg in form.cleaned_data['registrations']:
+        regs = form.cleaned_data['registrations']
+        logger.info("RegistrationImport importing %s registrations", len(regs),
+                    extra=self.request.log_data)
+        for reg in regs:
             reg.save()
         return redirect('registration_list')
 
 
+@login_required
 class RegistrationList(TemplateView):
     template_name = 'registration_list.html'
 
@@ -71,16 +92,21 @@ class RegistrationList(TemplateView):
         return self.get(request)
 
 
+@login_required
 class SurveyResponseImport(FormView):
     form_class = SurveyResponseImportForm
     template_name = 'survey_response_import.html'
 
     def form_valid(self, form):
-        for reg in form.cleaned_data['responses']:
-            reg.save()
+        resps = form.cleaned_data['responses']
+        logger.info("SurveyResponseImport importing %s surveys", len(resps),
+                    extra=self.request.log_data)
+        for resp in resps:
+            resp.save()
         return redirect('survey_response_list')
 
 
+@login_required
 class SurveyResponseList(TemplateView):
     template_name = 'survey_response_list.html'
 
@@ -99,12 +125,16 @@ class SurveyResponseList(TemplateView):
             k = 'object_%s' % r.id
             if k in request.POST:
                 v = request.POST[k]
-                if v:
+                if v and int(v) != r.person_id:
+                    logger.info("Set SurveyResponse(id=%s).person_id = %s",
+                                r.id, v,
+                                extra=self.request.log_data)
                     r.person_id = int(v)
                     r.save()
         return self.get(request)
 
 
+@login_required
 class Email(TemplateView):
     template_name = 'email.html'
 
@@ -145,6 +175,7 @@ class Email(TemplateView):
         return context_data
 
 
+@login_required
 class EmailMessageCreate(FormView):
     form_class = EmailMessageCreateForm
     template_name = 'emailmessage_create.html'
@@ -158,12 +189,15 @@ class EmailMessageCreate(FormView):
         return context_data
 
     def form_valid(self, form):
+        logger.info("Create EmailMessage for %s", self.get_emailaddress(),
+                    extra=self.request.log_data)
         EmailMessage(
             recipient=self.get_emailaddress(),
             bounce=form.cleaned_data['bounce']).save()
         return redirect('email')
 
 
+@login_required
 class EmailAddressCreate(FormView):
     form_class = EmailAddressCreateForm
     template_name = 'emailaddress_create.html'
@@ -177,13 +211,18 @@ class EmailAddressCreate(FormView):
         return context_data
 
     def form_valid(self, form):
+        person = self.get_person()
+        address = form.cleaned_data['address']
+        logger.info("Create EmailAddress %s for %s", address, person,
+                    extra=self.request.log_data)
         EmailAddress(
-            person=self.get_person(),
-            address=form.cleaned_data['address'],
+            person=person,
+            address=address,
             source='Manually entered').save()
         return redirect('email')
 
 
+@login_required
 class EmailMessageBulkCreate(FormView):
     form_class = EmailMessageBulkCreateForm
     template_name = 'emailmessage_bulkcreate.html'
@@ -205,11 +244,16 @@ class EmailMessageBulkCreate(FormView):
                 errors += 1
         if errors:
             return self.form_invalid(form)
+        logger.info("Bulk create messages %s", m,
+                    extra=self.request.log_data)
         EmailMessage.objects.bulk_create(m)
         return redirect('email')
 
 
+@login_required
 class EmailSynchronize(View):
     def post(self, request):
+        logger.info("EmailSynchronize.post",
+                    extra=self.request.log_data)
         synchronize_addresses()
         return redirect('email')
