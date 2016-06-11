@@ -170,51 +170,52 @@ def get_registration_people(sections):
     return by_id
 
 
+def parse_registration_time_naive(time):
+    """
+    >>> parse_registration_time_naive("03-06-2016 22:38:50")
+    datetime.datetime(2016, 6, 3, 22, 38, 50)
+    """
+
+    mo = re.match(r'(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)', time)
+    if mo is None:
+        raise ValidationError("Invalid time: %s" % (time,))
+    day, month, year, hour, minute, second = mo.groups()
+    time = datetime.datetime(int(year), int(month), int(day),
+                             int(hour), int(minute), int(second))
+    return time
+
+
+def parse_registration_time(time):
+    dt = parse_registration_time_naive(time)
+    return dt.replace(tzinfo=timezone.get_default_timezone())
+
+
+def make_registration(data):
+    main_row, shows_rows = data
+    (id, first_name, last_name, _1, _2, email, _3, _4, time,
+     _5, _6, _7, _8, _9, _10, note) = main_row
+    if len(shows_rows) == 0:
+        dietary = ''
+        newsletter = False
+        transportation = False
+        if note.startswith('Krediteret'):
+            show = 'refund'
+        else:
+            raise ValidationError("No shows and no refund")
+    elif len(shows_rows) == 1:
+        (show, show_row), = shows_rows.items()
+        dietary, transportation, newsletter = show_row[15:18]
+        transportation = (transportation == 'Ja')
+        newsletter = (newsletter == 'Ja')
+    time = parse_registration_time(time)
+    return Registration(
+        time=time, survey_id=id, first_name=first_name, last_name=last_name,
+        email=email, dietary=dietary, newsletter=newsletter,
+        transportation=transportation, show=show, webshop_show=show, note=note)
+
+
 def parse_registration(csv_text):
-    reader = csv.reader([csv_text], delimiter=';')
-    rows = iter(reader)
-
-    row = next(rows)
-    header = [
-        'Arrangement:', 'TÅGEKAMMERETS 60 års jubilæumsfest', '']
-    if row != header:
-        raise ValidationError(
-            "Header does not match expectation: %r is not %r" %
-            (row, header))
-    row = next(rows)
-
-    while not row:
-        row = next(rows)
-    header = ['ID', 'Fornavn', 'Efternavn', 'Adresse', 'Postnr/by',
-              'Email', 'Ansættelsessted', 'Stilling', 'Tilmeldingsdato',
-              'Antal', 'Stykpris', '', 'Rabat', 'Betalt', 'Markedsføring',
-              'Note']
-    if row != header:
-        raise ValidationError(
-            "Header does not match expectation: %r is not %r" %
-            (row, header))
-    row = next(rows)
-
-    registrations = []
-    registration_by_id = {}
-
-    from j60adm.models import Registration
-
-    while row:
-        (id, first_name, last_name, _1, _2, email, _3, _4, time,
-         _5, _6, _7, _8, _9, _10, note) = row
-        registrations.append(Registration(
-            survey_id=id, first_name=first_name, last_name=last_name,
-            email=email, note=note))
-        if id in registration_by_id:
-            raise ValidationError(
-                "Duplicate ID %r %r %r" %
-                (id, registrations[-1], registration_by_id[id]))
-        registration_by_id[id] = registrations[-1]
-        row = next(rows)
-
-    while not row:
-        row = next(rows)
-
-    ...
+    sections = extract_registration_sections(csv_text)
+    people = get_registration_people(sections)
+    registrations = [make_registration(d) for d in people.values()]
     return registrations
