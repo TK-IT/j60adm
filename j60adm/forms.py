@@ -1,6 +1,15 @@
 from django import forms
 
-from j60adm.parser import parse_registrations, parse_survey_responses
+from j60adm.parser import (
+    parse_registrations, parse_survey_responses, parse_addresses_emails)
+
+
+class PersonImportForm(forms.Form):
+    persons = forms.CharField(widget=forms.Textarea, strip=False)
+
+    def clean_persons(self):
+        csv_text = self.cleaned_data['persons']
+        return parse_addresses_emails(csv_text)
 
 
 class RegistrationImportForm(forms.Form):

@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from j60adm.views import (
+    PersonImport, PersonList,
     RegistrationImport, RegistrationList,
     SurveyResponseImport, SurveyResponseList,
 )
@@ -23,6 +24,10 @@ from j60adm.views import (
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^person/import/$', PersonImport.as_view(),
+        name='person_import'),
+    url(r'^person/$', PersonList.as_view(),
+        name='person_list'),
     url(r'^survey/import/$', SurveyResponseImport.as_view(),
         name='survey_response_import'),
     url(r'^survey/$', SurveyResponseList.as_view(),

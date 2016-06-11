@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 class Association:
     def __init__(self, *, name, current_period):
         self.name = name
-        self.current_period = period
+        self.current_period = current_period
 
     @classmethod
     def get(cls):

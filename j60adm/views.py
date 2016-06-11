@@ -1,8 +1,29 @@
 from django.views.generic import FormView, ListView
 from django.shortcuts import redirect
 
-from j60adm.models import Registration, SurveyResponse
-from j60adm.forms import RegistrationImportForm, SurveyResponseImportForm
+from j60adm.models import Registration, SurveyResponse, Person
+from j60adm.forms import (
+    RegistrationImportForm, SurveyResponseImportForm, PersonImportForm)
+
+
+class PersonImport(FormView):
+    form_class = PersonImportForm
+    template_name = 'person_import.html'
+
+    def form_valid(self, form):
+        persons, objects = form.cleaned_data['persons']
+        for p in persons:
+            p.save()
+        for o in objects:
+            o.person = o.person  # Update o.person_id
+            o.save()
+        return redirect('person_list')
+
+
+class PersonList(ListView):
+    model = Person
+    queryset = Person.objects.all()
+    template_name = 'person_list.html'
 
 
 class RegistrationImport(FormView):

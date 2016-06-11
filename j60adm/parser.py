@@ -32,7 +32,7 @@ def parse_addresses_emails(csv_text):
 
         dead = (dead == 'ja')
         bounce = bool(bounce)
-        period = association.current_period - age
+        period = association.current_period - int(age)
         person = Person(
             name=name, street=street, city=city, country=country, dead=dead)
         persons.append(person)

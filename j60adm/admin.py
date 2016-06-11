@@ -1,5 +1,10 @@
 from django.contrib import admin
-from j60adm.models import Registration, SurveyResponse
+from j60adm.models import Person, Registration, SurveyResponse
+
+
+class PersonAdmin(admin.ModelAdmin):
+    list_display = ('name', 'street', 'city', 'country', 'dead',
+                    'created_time')
 
 
 class SurveyResponseAdmin(admin.ModelAdmin):
@@ -13,5 +18,6 @@ class RegistrationAdmin(admin.ModelAdmin):
                     'note')
 
 
+admin.site.register(Person, PersonAdmin)
 admin.site.register(Registration, RegistrationAdmin)
 admin.site.register(SurveyResponse, SurveyResponseAdmin)
