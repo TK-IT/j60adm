@@ -21,9 +21,10 @@ class PersonImport(FormView):
 
 
 class PersonList(ListView):
-    model = Person
-    queryset = Person.objects.all()
     template_name = 'person_list.html'
+
+    def get_queryset(self):
+        return Person.objects.all().prefetch_related('title_set')
 
 
 class RegistrationImport(FormView):
