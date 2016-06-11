@@ -23,13 +23,13 @@
 <td>
 {% for e in person.emailaddress_set.all %}
 {{ e.address }}
-{% endfor %}
-{% for e in person.emailmessage_set.all %}
-{% if e.bounce %}
+{% for m in e.emailmessage_set.all %}
+{% if m.bounce %}
 X
 {% else %}
 &#x2713;
 {% endif %}
+{% endfor %}
 {% endfor %}
 </td>
 <td>

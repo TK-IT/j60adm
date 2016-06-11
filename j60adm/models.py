@@ -122,8 +122,7 @@ class EmailAddress(models.Model):
 
 
 class EmailMessage(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    recipient = models.CharField(max_length=200)
+    recipient = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     bounce = models.BooleanField(blank=True)
 

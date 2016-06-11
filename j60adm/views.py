@@ -28,7 +28,7 @@ class PersonList(ListView):
         qs = Person.objects.all()
         qs = qs.prefetch_related(
             'title_set', 'registration_set', 'surveyresponse_set',
-            'emailaddress_set', 'emailmessage_set')
+            'emailaddress_set')
         return qs
 
 
