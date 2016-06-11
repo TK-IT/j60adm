@@ -47,8 +47,8 @@ def parse_addresses_emails(csv_text):
             email_addresses.append(EmailAddress(
                 person=person, address=email, source='j60adr'))
             email_messages.append(EmailMessage(
-                person=person, recipient=email, bounce=bounce))
-    return persons, titles + email_addresses + email_messages
+                address=email_addresses[-1], bounce=bounce))
+    return persons, titles + email_addresses, email_messages
 
 
 def parse_survey_responses(csv_text):

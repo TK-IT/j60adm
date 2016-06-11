@@ -38,6 +38,14 @@ class Person(models.Model):
     class Meta:
         ordering = ['name']
 
+    def title_order_key(self):
+        try:
+            t = min(self.title_set.all(), key=lambda t: t.period)
+            return (1, -t.period, t.title.startswith('EFU'),
+                    t.title.startswith('FU'), t.title)
+        except ValueError:
+            return 0,
+
     def title_and_name(self):
         p = [str(t) for t in self.title_set.all()]
         return ' '.join(p + [str(self)])

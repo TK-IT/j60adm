@@ -1,7 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Personer</title>
+</head>
+<body>
 <ul>
-    {% for o in address_list %}
-    <li>{{ o.address.person }} {{ o.address.address }} ({{ o.address.source }})</li>
+{% for person in person_list %}
+<li>{{ person.title_and_name }}
     <ul>
-    {% for m in o.messages %}
-    <li>{{ m.created_time
-
+    {% for a in person.emailaddress_set.all %}
+    <li>{{ a }}
+        {% for m in a.emailmessage_set.all %}
+        <span title="{{ m.created_time }}">
+        {% if m.bounce %}
+        X
+        {% else %}
+        &#x2713;
+        {% endif %}
+        </span>
+        {% endfor %}
+    </li>
+    {% endfor %}
+    </ul>
+</li>
+{% endfor %}
+</ul>
+</body>
+</html>

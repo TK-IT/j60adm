@@ -20,6 +20,7 @@ from j60adm.views import (
     PersonImport, PersonList,
     RegistrationImport, RegistrationList,
     SurveyResponseImport, SurveyResponseList,
+    Email,
 )
 
 
@@ -37,6 +38,8 @@ urlpatterns = [
         name='registration_import'),
     url(r'^registration/$', RegistrationList.as_view(),
         name='registration_list'),
+    url(r'^email/$', Email.as_view(),
+        name='email'),
 ]
 
 # if settings.DEBUG:

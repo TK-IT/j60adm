@@ -26,9 +26,9 @@ class PersonList(ListView):
 
     def get_queryset(self):
         qs = Person.objects.all()
-        qs = qs.prefetch_related(
-            'title_set', 'registration_set', 'surveyresponse_set',
-            'emailaddress_set')
+        qs = qs.prefetch_related('registration_set', 'surveyresponse_set',
+                                 'title_set', 'emailaddress_set')
+        qs = sorted(qs, key=lambda p: p.title_order_key())
         return qs
 
 
@@ -100,17 +100,31 @@ class SurveyResponseList(TemplateView):
         return self.get(request)
 
 
-#class Email(TemplateView):
-#    template_name = 'email.html'
-#
-#    def get_context_data(self, **kwargs):
-#        context_data = super().get_context_data(**kwargs)
-#        qs = EmailAddress.objects.all()
-#        qs = qs.select_related('person')
-#        addresses = {
-#            e.address: dict(address=e, messages=[])
-#            for e in qs}
-#        for e in EmailMessage.objects.all():
-#            addresses[e.recipient]['messages'].append(e)
-#        context_data['address_list'] = addresses.values()
-#        return context_data
+class Email(TemplateView):
+    template_name = 'email.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        qs = Person.objects.all()
+        qs = qs.prefetch_related('emailaddress',
+                                 'emailaddress__emailmessage')
+        by_state = dict(none=[], new=[], sent=[], bounce=[])
+        for p in Person.objects.all():
+            addresses = list(p.emailaddress_set.all())
+            if not addresses:
+                by_state['none'].append(p)
+                continue
+            message_sets = [list(a.emailmessage_set.all()) for a in addresses]
+            any_new = any(not message_set for message_set in message_sets)
+            any_sent = any(not message.bounce
+                           for message_set in message_sets
+                           for message in message_set)
+            if any_new:
+                by_state['new'].append(p)
+            elif any_sent:
+                by_state['sent'].append(p)
+            else:
+                by_state['bounce'].append(p)
+        context_data['person_list'] = (by_state['new'] + by_state['bounce'] +
+                                       by_state['none'] + by_state['sent'])
+        return context_data
