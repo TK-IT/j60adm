@@ -12,7 +12,7 @@ class SurveyResponseAdmin(admin.ModelAdmin):
 
 
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name',
+    list_display = ('survey_id', 'first_name', 'last_name',
                     'email', 'dietary', 'newsletter',
                     'transportation', 'show', 'webshop_show',
                     'note')
