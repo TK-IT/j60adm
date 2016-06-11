@@ -49,14 +49,16 @@ class Title(models.Model):
         return ''.join(digits[int(i)] for i in str(n))
 
     @staticmethod
-    def tk_prefix(age):
+    def tk_prefix(age, sup_fn=None):
+        if sup_fn is None:
+            sup_fn = Title.sup
         prefix = ['', 'G', 'B', 'O', 'TO']
         if age < 0:
-            return 'K%s' % Title.sup(-age)
+            return 'K%s' % sup_fn(-age)
         elif age < len(prefix):
             return prefix[age]
         else:
-            return 'T%sO' % Title.sup(age - 3)
+            return 'T%sO' % sup_fn(age - 3)
 
     def __str__(self):
         return '%s%s' % (self.tk_prefix(self.age), self.title)
