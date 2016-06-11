@@ -30,6 +30,12 @@ def parse_addresses_emails(csv_text):
         (name, title, age, email, street, city, country,
          dead, _recipient, bounce) = row[:10]
 
+        expected_prefix = Title.tk_prefix(int(age), sup_fn=str)
+        if not title.startswith(expected_prefix):
+            raise ValidationError("Expected %r to start with %r (age %r)" %
+                                  (title, expected_prefix, int(age)))
+        title = title[len(expected_prefix):]
+
         dead = (dead == 'ja')
         bounce = bool(bounce)
         period = association.current_period - int(age)
