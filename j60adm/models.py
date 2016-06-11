@@ -18,7 +18,7 @@ class Association:
         return self.name
 
 
-# @python_2_unicode_compatible
+@python_2_unicode_compatible
 class Person(models.Model):
     name = models.CharField(max_length=200)
     street = models.CharField(max_length=200, blank=True)
@@ -27,6 +27,15 @@ class Person(models.Model):
     dead = models.BooleanField(blank=True)
 
     created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.dead:
+            return '\u271D%s' % (self.name,)
+        else:
+            return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 @python_2_unicode_compatible
