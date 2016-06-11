@@ -1,0 +1,7 @@
+<ul>
+    {% for o in address_list %}
+    <li>{{ o.address.person }} {{ o.address.address }} ({{ o.address.source }})</li>
+    <ul>
+    {% for m in o.messages %}
+    <li>{{ m.created_time
+

@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf.urls.static import static
 from j60adm.views import (
     PersonImport, PersonList,
     RegistrationImport, RegistrationList,
@@ -26,7 +27,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^person/import/$', PersonImport.as_view(),
         name='person_import'),
-    url(r'^person/$', PersonList.as_view(),
+    url(r'^$', PersonList.as_view(),
         name='person_list'),
     url(r'^survey/import/$', SurveyResponseImport.as_view(),
         name='survey_response_import'),
@@ -37,3 +38,7 @@ urlpatterns = [
     url(r'^registration/$', RegistrationList.as_view(),
         name='registration_list'),
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(
+#         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

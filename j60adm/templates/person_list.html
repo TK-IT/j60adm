@@ -1,12 +1,53 @@
-<ul>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Personer</title>
+</head>
+<body>
+<table>
+<thead>
+<tr>
+    <th>Titel</th><th>Navn</th><th>Emailadresse</th>
+    <th><a href="{% url 'registration_list' %}">Billetsalg</a></th>
+    <th><a href="{% url 'survey_response_list' %}">Nyhedsbrev</a></th>
+</tr>
+<tbody>
 {% for person in object_list %}
-<li>
-    {% for t in person.title_set.all %}
-    {{ t }}
-    {% endfor %}
-    {{ person.name }}
-    {{ person.registration_count }}
-    {{ person.response_count }}
+<tr>
+<td>
+{% for t in person.title_set.all %}
+{{ t }}
+{% endfor %}
+</td>
+<td>{{ person.name }}</td>
+<td>
+{% for e in person.emailaddress_set.all %}
+{{ e.address }}
+{% endfor %}
+{% for e in person.emailmessage_set.all %}
+{% if e.bounce %}
+X
+{% else %}
+&#x2713;
+{% endif %}
+{% endfor %}
+</td>
+<td>
+{% for r in person.registration_set.all %}
+{{ r.get_show_display }}
+{% endfor %}
+</td>
+<td>
+{% for r in person.surveyresponse_set.all %}
+{% if r.newsletter %}
+Ja tak
+{% else %}
+Nej tak
+{% endif %}
+{% endfor %}
+</td>
 </li>
 {% endfor %}
 </ul>
+</body>
+</html>

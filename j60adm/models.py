@@ -1,4 +1,5 @@
 # vim: set fileencoding=utf8: from __future__ import unicode_literals
+import collections
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
@@ -37,6 +38,31 @@ class Person(models.Model):
     class Meta:
         ordering = ['name']
 
+    def title_and_name(self):
+        p = [str(t) for t in self.title_set.all()]
+        return ' '.join(p + [str(self)])
+
+    def dump(self):
+        return collections.OrderedDict([
+            ('id', self.id),
+            ('str', self.title_and_name()),
+            ('name', self.name),
+            ('titles', [t.dump() for t in self.title_set.all()]),
+            ('dead', self.dead),
+        ])
+
+    @property
+    def emails(self):
+        e = []
+        messages = {}
+        for m in self.emailmessage_set.all():
+            messages.setdefault(m.recipient, []).append(m)
+        for address in self.emailaddress_set.all():
+            e.append(
+                {'address': address,
+                 'messages': messages.pop(address.address, [])})
+        return e
+
 
 @python_2_unicode_compatible
 class Title(models.Model):
@@ -72,14 +98,27 @@ class Title(models.Model):
     def __str__(self):
         return '%s%s' % (self.tk_prefix(self.age), self.title)
 
+    def dump(self):
+        return collections.OrderedDict([
+            ('id', self.id),
+            ('age', self.age),
+            ('prefix', self.tk_prefix(self.age)),
+            ('title', self.title),
+            ('period', self.period),
+        ])
+
     class Meta:
         ordering = ['period', 'title']
 
 
+@python_2_unicode_compatible
 class EmailAddress(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     address = models.CharField(max_length=200)
     source = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.address
 
 
 class EmailMessage(models.Model):
@@ -89,6 +128,7 @@ class EmailMessage(models.Model):
     bounce = models.BooleanField(blank=True)
 
 
+@python_2_unicode_compatible
 class SurveyResponse(models.Model):
     person = models.ForeignKey(Person, on_delete=models.SET_NULL,
                                null=True, blank=True)
@@ -98,6 +138,18 @@ class SurveyResponse(models.Model):
     email = models.CharField(max_length=200)
     newsletter = models.BooleanField(blank=True)
     note = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return '<SurveyResponse name=%s>' % (self.name,)
+
+    class Meta:
+        ordering = ['time']
+
+    def dump(self):
+        return collections.OrderedDict([
+            ('name', self.name),
+            ('title', self.title),
+        ])
 
 
 """
@@ -131,9 +183,17 @@ class Registration(models.Model):
 
     note = models.CharField(max_length=200, blank=True)
 
+    @property
+    def name(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def dump(self):
+        return collections.OrderedDict([
+            ('name', self.name),
+        ])
+
     def __str__(self):
-        repr_parts = [
-            self.show, 'name=%s %s' % (self.first_name, self.last_name)]
+        repr_parts = [self.show, 'name=%s' % (self.name,)]
         if self.dietary:
             repr_parts.append('dietary=%r' % (self.dietary,))
         if self.transportation:

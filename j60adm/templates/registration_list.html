@@ -1,5 +1,42 @@
-<ul>
-{% for object in object_list %}
-<li>{{object}}</li>
+{% load json %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Billetsalg</title>
+<script type="text/javascript" src="{% static 'survey_response_list.js' %}"></script>
+</head>
+<body>
+<p><a href="{% url 'registration_import' %}">Importér CSV</a></p>
+<form method="post">{% csrf_token %}
+<table>
+<tbody>
+{% for registration in object_list %}
+<tr>
+<td>{{ registration.name }}</td>
+<td>{{ registration.email }}</td>
+<td>
+<input name="object_{{ registration.id }}"
+value="{{ registration.person_id|default_if_none:'' }}"
+data-person-complete="{{ registration.dump|json }}"
+/>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<input type="submit" />
+</form>
+<ul id="person-list">
+{% for person in person_list %}
+<li data-person="{{ person.dump|json|escape }}">
+{{ person.id }}:
+{% for title in person.title_set.all %}
+{{ title }}
+{% endfor %}
+{{ person.name }}
+</li>
 {% endfor %}
 </ul>
+</body>
+</html>
