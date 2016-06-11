@@ -1,5 +1,6 @@
 from django.views.generic import FormView, ListView
 from django.shortcuts import redirect
+from django.db.models import Count
 
 from j60adm.models import Registration, SurveyResponse, Person
 from j60adm.forms import (
@@ -26,6 +27,8 @@ class PersonList(ListView):
     def get_queryset(self):
         qs = Person.objects.all()
         qs = qs.prefetch_related('title_set')
+        qs = qs.annotate(registration_count=Count('registration'))
+        qs = qs.annotate(response_count=Count('surveyresponse'))
         return qs
 
 
