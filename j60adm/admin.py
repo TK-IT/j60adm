@@ -25,14 +25,21 @@ class TitleFilter(admin.SimpleListFilter):
 class TitleAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'person', 'title', 'period']
     list_filter = [TitleFilter, 'period']
+    search_fields = ['title']
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
     list_display = ['address', 'person', 'source']
+    search_fields = ['address']
+    list_filter = ['source']
 
 
 def get_message_person(message):
     return message.recipient.person
+
+
+get_message_person.short_description = 'person'
+get_message_person.admin_order_field = 'person'
 
 
 class EmailMessageAdmin(admin.ModelAdmin):
@@ -44,6 +51,8 @@ class EmailMessageAdmin(admin.ModelAdmin):
 
 class SurveyResponseAdmin(admin.ModelAdmin):
     list_display = ['name', 'time', 'title', 'email', 'newsletter', 'note']
+    list_filter = ['newsletter', 'note']
+    search_fields = ['name', 'person__name']
 
 
 class RegistrationAdmin(admin.ModelAdmin):
@@ -51,6 +60,9 @@ class RegistrationAdmin(admin.ModelAdmin):
                     'email', 'dietary', 'newsletter',
                     'transportation', 'show', 'webshop_show',
                     'note']
+    list_filter = ['newsletter', 'transportation',
+                   'show', 'webshop_show', 'dietary', 'note']
+    search_fields = ['first_name', 'last_name', 'person__name']
 
 
 admin.site.register(Person, PersonAdmin)
