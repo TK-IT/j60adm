@@ -44,7 +44,7 @@ class Person(models.Model):
             return (1, -t.period, t.title.startswith('EFU'),
                     t.title.startswith('FU'), t.title)
         except ValueError:
-            return 0,
+            return (0, self.name)
 
     def title_and_name(self):
         p = [str(t) for t in self.title_set.all()]
