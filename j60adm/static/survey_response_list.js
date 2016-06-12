@@ -122,7 +122,9 @@ function make_person_index(persons) {
 
 function setup_person_complete(persons, indexOf, outputElement) {
     var inputElement = document.createElement('input');
+    inputElement.setAttribute('size', '10');
     var personElement = document.createElement('span');
+    personElement.style.paddingLeft = '8px';
 
     var personData = JSON.parse(
         outputElement.getAttribute('data-person-complete'));
