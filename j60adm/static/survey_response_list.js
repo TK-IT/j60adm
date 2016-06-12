@@ -225,7 +225,6 @@ function setup_person_complete(persons, indexOf, outputElement) {
 
 function init() {
     var persons = get_persons();
-    console.log(persons);
     var indexOf = make_person_index(persons);
     var toComplete = [].slice.call(document.querySelectorAll('*[data-person-complete]'));
     for (var i = 0; i < toComplete.length; ++i)
