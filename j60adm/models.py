@@ -206,3 +206,6 @@ class Registration(models.Model):
         if self.transportation:
             repr_parts.append('dietary=%r' % (self.transportation,))
         return "<Registration %s>" % ' '.join(repr_parts)
+
+    class Meta:
+        ordering = ['time']
