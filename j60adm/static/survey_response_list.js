@@ -2,8 +2,11 @@ function get_persons() {
     function get_person(o) {
         return JSON.parse(o.getAttribute('data-person'));
     }
-    var personElements = document.querySelectorAll('#person-list > li[data-person]');
-    return [].slice.call(personElements).map(get_person);
+    var personList = document.getElementById('person-list');
+    var personElements = personList.querySelectorAll('li[data-person]');
+    var persons = [].slice.call(personElements).map(get_person);
+    personList.style.display = 'none';
+    return persons;
 }
 
 function make_index(values) {
