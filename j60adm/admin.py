@@ -4,17 +4,17 @@ from j60adm.models import (
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'street', 'city', 'country', 'dead',
-                    'created_time')
+    list_display = ['name', 'street', 'city', 'country', 'dead',
+                    'created_time']
     search_fields = ['name', 'street', 'city', 'country']
 
 
 class TitleAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'person', 'title', 'period')
+    list_display = ['__str__', 'person', 'title', 'period']
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
-    list_display = ('address', 'person', 'source')
+    list_display = ['address', 'person', 'source']
 
 
 def get_message_person(message):
@@ -24,19 +24,19 @@ def get_message_person(message):
 class EmailMessageAdmin(admin.ModelAdmin):
     list_filter = ['bounce']
     search_fields = ['recipient__person__name', 'recipient__address']
-    list_display = ('recipient', get_message_person, 'bounce', 'created_time')
-    list_select_related = ('recipient', 'recipient__person')
+    list_display = ['recipient', get_message_person, 'bounce', 'created_time']
+    list_select_related = ['recipient', 'recipient__person']
 
 
 class SurveyResponseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'time', 'title', 'email', 'newsletter', 'note')
+    list_display = ['name', 'time', 'title', 'email', 'newsletter', 'note']
 
 
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('survey_id', 'time', 'first_name', 'last_name',
+    list_display = ['survey_id', 'time', 'first_name', 'last_name',
                     'email', 'dietary', 'newsletter',
                     'transportation', 'show', 'webshop_show',
-                    'note')
+                    'note']
 
 
 admin.site.register(Person, PersonAdmin)
