@@ -9,8 +9,22 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ['name', 'street', 'city', 'country']
 
 
+class TitleFilter(admin.SimpleListFilter):
+    title = 'title'
+    parameter_name = 'title'
+
+    def lookups(self, request, model_admin):
+        return [(v, v) for v in ('CERM FORM INKA KASS NF PR ' +
+                                 'SEKR VC FU EFU FUAN').split()]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(title__startswith=self.value())
+
+
 class TitleAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'person', 'title', 'period']
+    list_filter = [TitleFilter, 'period']
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
