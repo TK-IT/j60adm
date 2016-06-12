@@ -191,7 +191,7 @@ class Registration(models.Model):
         if self.dietary:
             repr_parts.append('dietary=%r' % (self.dietary,))
         if self.transportation:
-            repr_parts.append('dietary=%r' % (self.transportation,))
+            repr_parts.append('transportation=%r' % (self.transportation,))
         return "<Registration %s>" % ' '.join(repr_parts)
 
     class Meta:
