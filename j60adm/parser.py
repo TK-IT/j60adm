@@ -223,7 +223,8 @@ def make_registration(data):
         if refund_note.startswith('Krediteret'):
             show = 'refund'
         else:
-            raise ValidationError("No shows and no refund: %r" % (main_row[:16],))
+            raise ValidationError("No shows and no refund: %r" %
+                                  (main_row[:16],))
     elif len(shows_rows) == 1:
         (show, show_row), = shows_rows.items()
         dietary, transportation, newsletter = show_row[15:18]
