@@ -159,6 +159,11 @@ class Email(TemplateView):
                 by_state['new'].append(p)
             else:
                 by_state['bounce'].append(p)
+        by_state['bounce'].sort(
+            key=lambda p: next(
+                a.address[a.address.index('@'):]
+                for a in p.emailaddress_set.all()
+                if any(m.bounce for m in a.emailmessage_set.all())))
         recipients = []
         for p in by_state['new']:
             emailaddress = next(
