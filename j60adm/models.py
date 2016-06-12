@@ -65,6 +65,9 @@ class Person(models.Model):
             ('str', self.title_and_name()),
             ('name', self.name),
             ('titles', [t.dump() for t in self.title_set.all()]),
+            ('street', self.street),
+            ('city', self.city),
+            ('country', self.country),
             ('dead', self.dead),
         ])
 
