@@ -1,5 +1,3 @@
-from django.contrib.auth.models import User
-
 from ipware.ip import get_real_ip
 
 

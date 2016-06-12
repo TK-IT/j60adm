@@ -2,7 +2,6 @@
 import collections
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import User
 
 
 @python_2_unicode_compatible
@@ -155,16 +154,6 @@ class SurveyResponse(models.Model):
             ('name', self.name),
             ('title', self.title),
         ])
-
-
-"""
-Arrangement:;"TÅGEKAMMERETS 60 års jubilæumsfest";
-ID;Fornavn;Efternavn;Adresse;Postnr/by;Email;Ansættelsessted;Stilling;Tilmeldingsdato;Antal;Stykpris;;Rabat;Betalt;Markedsføring;Note
-Arrangement:;"Jeg kan desværre ikke komme til revyen";
-Arrangement:;"Revyforestillingen kl. 13.30";
-Arrangement:;"Revyforestillingen kl. 16.00";
-ID;Fornavn;Efternavn;Adresse;Postnr/by;Email;Ansættelsessted;Stilling;Tilmeldingsdato;Antal;Stykpris;;Rabat;Betalt;Markedsføring;"Er du vegetar";"Er du gangbesværet...";"5. Ønsker du at modtage vores J60-nyhedsbrev...";Note
-"""
 
 
 @python_2_unicode_compatible
