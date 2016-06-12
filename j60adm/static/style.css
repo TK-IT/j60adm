@@ -1,0 +1,36 @@
+body {
+	font-size: 13px;
+	line-height: 16px;
+	font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+	color: #333;
+	margin: 20px 40px;
+}
+h1 {
+	margin: 0 0 20px;
+	font-weight: 300;
+	font-size: 20px;
+	color: #666;
+}
+table {
+	border-collapse: collapse;
+}
+td, th {
+	padding: 8px;
+	border-bottom: 1px solid #eee;
+}
+thead tr {
+	background-color: #f6f6f6;
+}
+thead th {
+	font-size: 11px;
+	text-transform: uppercase;
+	text-align: left;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+}
+tr:nth-child(even) {
+	background-color: #f9f9f9;
+}
+.dietary {
+	max-width: 200px;
+}
