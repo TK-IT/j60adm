@@ -284,7 +284,7 @@ class LetterBounce(TemplateView):
         if request.POST['persons']:
             ids = set(int(v) for v in request.POST['persons'].split(','))
         else:
-            ids = []
+            ids = set()
         add = ids - person_ids
         remove = person_ids - ids
         if add:
