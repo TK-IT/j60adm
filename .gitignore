@@ -1,3 +1,4 @@
 /db.sqlite3
 .*.swp
 __pycache__
+/j60adm/settings/__init__.py
