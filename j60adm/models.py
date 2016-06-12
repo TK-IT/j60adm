@@ -39,11 +39,18 @@ class Person(models.Model):
         ordering = ['name']
 
     def title_order_key(self):
+        """
+        Order persons without title first (alphabetically by name).
+        Order persons by their latest title by period,
+        then by BEST < FU < EFU, and then alphabetically by title.
+        """
         try:
             t = min(self.title_set.all(), key=lambda t: t.period)
             return (1, -t.period, t.title.startswith('EFU'),
                     t.title.startswith('FU'), t.title)
         except ValueError:
+            # min() raised ValueError because of an empty sequence.
+            # Order persons without a title before persons with a title.
             return (0, self.name)
 
     def title_and_name(self):
@@ -51,6 +58,9 @@ class Person(models.Model):
         return ' '.join(p + [str(self)])
 
     def dump(self):
+        """
+        Information for client code in a dictionary.
+        """
         return collections.OrderedDict([
             ('id', self.id),
             ('str', self.title_and_name()),
