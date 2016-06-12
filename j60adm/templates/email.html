@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Email</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Email{% endblock %}
+{% block content %}
 <form method="post" action="{% url 'email_synchronize' %}">{% csrf_token %}
 <input type="submit" value="Synkronisér med billetsalg og nyhedsbrev-formular" />
 </form>
@@ -49,5 +46,4 @@
 </li>
 {% endfor %}
 </ul>
-</body>
-</html>
+{% endblock %}

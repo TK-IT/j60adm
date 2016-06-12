@@ -1,5 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Opret email{% endblock %}
+{% block content %}
 <form method="post">{% csrf_token %}
 {{ emailaddress }}
 {{ form.as_p }}
 <input type="submit" />
 </form>
+{% endblock %}

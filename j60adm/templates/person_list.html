@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Personer</title>
+{% extends "base.html" %}
+{% block title %}Personer{% endblock %}
+{% block head %}
 <style>
 td {border-bottom: 1px solid #ccc; }
 </style>
-</head>
-<body>
+{% endblock %}
+{% block content %}
 <table>
 <thead>
 <tr>
@@ -57,5 +56,4 @@ Nej tak
 </li>
 {% endfor %}
 </ul>
-</body>
-</html>
+{% endblock %}
