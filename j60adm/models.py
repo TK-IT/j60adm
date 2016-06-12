@@ -59,18 +59,6 @@ class Person(models.Model):
             ('dead', self.dead),
         ])
 
-    @property
-    def emails(self):
-        e = []
-        messages = {}
-        for m in self.emailmessage_set.all():
-            messages.setdefault(m.recipient, []).append(m)
-        for address in self.emailaddress_set.all():
-            e.append(
-                {'address': address,
-                 'messages': messages.pop(address.address, [])})
-        return e
-
 
 @python_2_unicode_compatible
 class Title(models.Model):
