@@ -6,25 +6,53 @@
 <script type="text/javascript" src="{% static 'survey_response_list.js' %}"></script>
 {% endblock %}
 {% block content %}
+<h1>Billetsalg</h1>
 <p><a href="{% url 'registration_import' %}">Importér CSV</a></p>
 <form method="post">{% csrf_token %}
 <table>
+<thead>
+<tr>
+<th>Navn</th>
+<th>Email</th>
+<th>Person</th>
+<th>Revy</th>
+<th>Særlig kost</th>
+<th>Transport</th>
+<th>Nyhedsbrev</th>
+</tr>
+</thead>
 <tbody>
 {% for registration in object_list %}
 <tr>
 <td>{{ registration.name }}</td>
 <td>{{ registration.email }}</td>
 <td>
-<input name="object_{{ registration.id }}"
+<input size="10" name="object_{{ registration.id }}"
 value="{{ registration.person_id|default_if_none:'' }}"
 data-person-complete="{{ registration.dump|json }}"
 />
+</td>
+<td>{{ registration.get_show_display }}
+{% if registration.show != registration.webshop_show %}
+(webshop: {{ registration.get_webshop_show_display }})
+{% endif %}
+</td>
+<td class="dietary">{{ registration.dietary }}</td>
+<td>
+{% if registration.transportation %}
+Ja tak
+{% endif %}
+</td>
+<td>
+{% if registration.newsletter %}
+Ja tak
+{% endif %}
 </td>
 </tr>
 {% endfor %}
 </tbody>
 </table>
-<input type="submit" />
+<input type="submit" value="Gem ændringer" />
 </form>
 <ul id="person-list">
 {% for person in person_list %}
