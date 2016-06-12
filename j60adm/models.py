@@ -130,11 +130,17 @@ class EmailAddress(models.Model):
     def __str__(self):
         return self.address
 
+    class Meta:
+        ordering = ['address']
+
 
 class EmailMessage(models.Model):
     recipient = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     bounce = models.BooleanField(blank=True)
+
+    class Meta:
+        ordering = ['recipient']
 
 
 @python_2_unicode_compatible
