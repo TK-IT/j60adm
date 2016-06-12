@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load json %}
+{% load staticfiles %}
+{% block title %}Breve kommet retur{% endblock %}
+{% block head %}
+<script type="text/javascript" src="{% static 'index.js' %}"></script>
+<script type="text/javascript" src="{% static 'letter_bounce.js' %}"></script>
+{% endblock %}
+{% block content %}
+<h1>Breve kommet retur</h1>
+<form method="post">{% csrf_token %}
+<input id="persons" name="persons" value="{{ person_ids }}" autofocus />
+<input type="submit" value="Gem" />
+</form>
+<ul id="person-list">
+{% for person in person_list %}
+<li data-person="{{ person.dump|json|escape }}">
+{{ person.id }}:
+{% for title in person.title_set.all %}
+{{ title }}
+{% endfor %}
+{{ person.name }}
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

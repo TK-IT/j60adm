@@ -34,3 +34,7 @@ tr:nth-child(even) {
 .dietary {
 	max-width: 200px;
 }
+
+.letter-bounce {
+    width: 100%;
+}

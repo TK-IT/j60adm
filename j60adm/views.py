@@ -262,3 +262,37 @@ class EmailSynchronize(View):
                     extra=self.request.log_data)
         synchronize_addresses()
         return redirect('email')
+
+
+@login_required
+class LetterBounce(TemplateView):
+    template_name = 'letter_bounce.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        person_ids = ','.join(
+            str(p.id) for p in Person.objects.filter(letter_bounced=True))
+        context_data['person_ids'] = person_ids
+        qs = Person.objects.all()
+        qs = qs.prefetch_related('title_set')
+        context_data['person_list'] = qs
+        return context_data
+
+    def post(self, request):
+        person_ids = set(
+            p.id for p in Person.objects.filter(letter_bounced=True))
+        if request.POST['persons']:
+            ids = set(int(v) for v in request.POST['persons'].split(','))
+        else:
+            ids = []
+        add = ids - person_ids
+        remove = person_ids - ids
+        if add:
+            logger.info("LetterBounce add %s", add,
+                        extra=self.request.log_data)
+            Person.objects.filter(id__in=add).update(letter_bounced=True)
+        if remove:
+            logger.info("LetterBounce remove %s", remove,
+                        extra=self.request.log_data)
+            Person.objects.filter(id__in=remove).update(letter_bounced=False)
+        return self.get(request)

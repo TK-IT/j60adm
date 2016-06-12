@@ -26,6 +26,8 @@ class Person(models.Model):
     country = models.CharField(max_length=200, blank=True)
     dead = models.BooleanField(blank=True)
 
+    letter_bounced = models.BooleanField(blank=True)
+
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

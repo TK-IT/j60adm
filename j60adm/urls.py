@@ -21,6 +21,7 @@ from j60adm.views import (
     SurveyResponseImport, SurveyResponseList,
     Email, EmailAddressCreate, EmailSynchronize,
     EmailMessageCreate, EmailMessageBulkCreate,
+    LetterBounce,
 )
 
 
@@ -49,6 +50,8 @@ urlpatterns = [
         name='emailmessage_create'),
     url(r'^emailmessage/add/$', EmailMessageBulkCreate.as_view(),
         name='emailmessage_bulkcreate'),
+    url(r'^letterbounce/$', LetterBounce.as_view(),
+        name='letter_bounce'),
 ]
 
 # if settings.DEBUG:
