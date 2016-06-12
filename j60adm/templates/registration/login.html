@@ -1,4 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>J60-administration: Log ind</title>
+</head>
+<body>
+<h1>J60-administration</h1>
+<p>Velkommen til administrationen af
+<a href="http://www.TAAGEKAMMERET.dk/J60/">TÅGEKAMMERETs 60 års jubilæum (J60)</a>.
+</p>
+<p>
+Log ind for at fortsætte.
+</p>
 <form method="post">{% csrf_token %}
 {{ form.as_p }}
 <input type="submit" value="Login" />
 </form>
+</body>
+</html>
