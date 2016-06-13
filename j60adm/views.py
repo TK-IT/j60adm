@@ -9,7 +9,8 @@ from j60adm.models import (
     EmailAddress, EmailMessage,
 )
 from j60adm.forms import (
-    RegistrationImportForm, SurveyResponseImportForm, PersonImportForm,
+    RegistrationImportForm, SurveyResponseImportForm,
+    PersonImportForm, PersonNoteUpdateForm,
     EmailAddressCreateForm, EmailMessageCreateForm, EmailMessageBulkCreateForm,
 )
 from j60adm.addresses import synchronize_addresses
@@ -51,6 +52,28 @@ class PersonList(ListView):
                                  'title_set', 'emailaddress_set')
         qs = sorted(qs, key=lambda p: p.title_order_key())
         return qs
+
+
+@login_required
+class PersonNoteUpdate(FormView):
+    form_class = PersonNoteUpdateForm
+    template_name = 'person_note_update.html'
+
+    def get_person(self):
+        return get_object_or_404(Person, pk=self.kwargs['person'])
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['person'] = self.get_person()
+        return context_data
+
+    def form_valid(self, form):
+        p = self.get_person()
+        logger.info("Set %s note to %r", p, form.cleaned_data['note'],
+                    extra=self.request.log_data)
+        p.note = form.cleaned_data['note']
+        p.save()
+        return redirect('person_list')
 
 
 @login_required

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Redigér note{% endblock %}
+{% block content %}
+<h1>Redigér note</h1>
+<p>{{ person }}</p>
+<form method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" />
+</form>
+{% endblock %}

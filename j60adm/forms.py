@@ -14,6 +14,10 @@ class PersonImportForm(forms.Form):
         return parse_addresses_emails(csv_text)
 
 
+class PersonNoteUpdateForm(forms.Form):
+    note = forms.CharField(required=False)
+
+
 class RegistrationImportForm(forms.Form):
     registrations = forms.CharField(widget=forms.Textarea, strip=False)
 

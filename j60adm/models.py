@@ -30,6 +30,8 @@ class Person(models.Model):
 
     created_time = models.DateTimeField(auto_now_add=True)
 
+    note = models.TextField(blank=True)
+
     def __str__(self):
         if self.dead:
             return '\u271D%s' % (self.name,)

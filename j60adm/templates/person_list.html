@@ -12,6 +12,7 @@
     <th><a href="{% url 'email' %}">Emailadresse</a></th>
     <th><a href="{% url 'registration_list' %}">Billetsalg</a></th>
     <th><a href="{% url 'survey_response_list' %}">Nyhedsbrev</a></th>
+    <th>Note</th>
 </tr>
 <tbody>
 {% for person in object_list %}
@@ -51,6 +52,19 @@ Ja tak
 Nej tak
 {% endif %}
 {% endfor %}
+</td>
+<td>
+<form method="post" action="{% url 'person_note_update' person=person.id %}">
+{% csrf_token %}
+{{ person.note }}
+<input name="note" value="{{ person.note }}" type="hidden" />
+<a href="{% url 'person_note_update' person=person.id %}"
+onclick="var s = prompt('Note', this.parentNode.note.value);
+   if (s !== null) {
+    this.parentNode.note.value = s;
+    this.parentNode.submit();
+   }; return false">+</a>
+</form>
 </td>
 </tr>
 {% endfor %}
