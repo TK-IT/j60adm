@@ -5,6 +5,7 @@ from django.views.generic import (
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 import django.contrib.auth.decorators
 
 from j60adm.models import (
@@ -125,7 +126,33 @@ class RegistrationList(TemplateView):
         context_data = super().get_context_data(**kwargs)
         qs = Registration.objects.all()
         qs = qs.order_by('person')
-        context_data['object_list'] = qs
+        registrations = list(qs)
+        context_data['object_list'] = registrations
+
+        counts = []
+        for key, label in Registration._meta.get_field('show').choices:
+            show_count = sum(1 for r in registrations
+                             if r.show == key)
+            webshop_count = sum(1 for r in registrations
+                                if r.webshop_show == key)
+            if key in ('first', 'second'):
+                limit = 200 + (webshop_count - show_count)
+            else:
+                if webshop_count == show_count:
+                    limit = '∞'
+                elif webshop_count < show_count:
+                    limit = '∞ − %s' % (show_count - webshop_count)
+                else:
+                    limit = '∞ + %s' % (webshop_count - show_count)
+            counts.append(dict(
+                key=key,
+                label=label,
+                count=show_count,
+                webshop_count=webshop_count,
+                webshop_limit=limit,
+            ))
+        context_data['counts'] = counts
+
         qs = Person.objects.all()
         qs = qs.prefetch_related('title_set')
         context_data['person_list'] = qs

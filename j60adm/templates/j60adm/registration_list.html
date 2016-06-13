@@ -9,7 +9,25 @@
 {% block content %}
 <h1>Billetsalg</h1>
 <p><a href="{% url 'registration_import' %}">Importér CSV</a></p>
+<table>
+<thead>
+<tr><th>Forestilling</th><th>Gæster (faktisk)</th>
+<th>Gæster (webshop)</th><th>Webshop-grænse</th></tr>
+</thead>
+<tbody>
+{% for o in counts %}
+<tr>
+<td>{{ o.label }}</td>
+<td>{{ o.count }}</td>
+<td>{{ o.webshop_count }}</td>
+<td>{{ o.webshop_limit }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
 <form method="post">{% csrf_token %}
+<h2>Gæsteliste</h2>
 <table>
 <thead>
 <tr>
