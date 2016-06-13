@@ -25,7 +25,7 @@ login_required = method_decorator(
 @login_required
 class PersonImport(FormView):
     form_class = PersonImportForm
-    template_name = 'person_import.html'
+    template_name = 'j60adm/person_import.html'
 
     def form_valid(self, form):
         persons, objects, messages = form.cleaned_data['persons']
@@ -44,7 +44,7 @@ class PersonImport(FormView):
 
 @login_required
 class PersonList(ListView):
-    template_name = 'person_list.html'
+    template_name = 'j60adm/person_list.html'
 
     def get_queryset(self):
         qs = Person.objects.all()
@@ -57,7 +57,7 @@ class PersonList(ListView):
 @login_required
 class PersonNoteUpdate(FormView):
     form_class = PersonNoteUpdateForm
-    template_name = 'person_note_update.html'
+    template_name = 'j60adm/person_note_update.html'
 
     def get_person(self):
         return get_object_or_404(Person, pk=self.kwargs['person'])
@@ -79,7 +79,7 @@ class PersonNoteUpdate(FormView):
 @login_required
 class RegistrationImport(FormView):
     form_class = RegistrationImportForm
-    template_name = 'registration_import.html'
+    template_name = 'j60adm/registration_import.html'
 
     def form_valid(self, form):
         regs = form.cleaned_data['registrations']
@@ -92,7 +92,7 @@ class RegistrationImport(FormView):
 
 @login_required
 class RegistrationList(TemplateView):
-    template_name = 'registration_list.html'
+    template_name = 'j60adm/registration_list.html'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -118,7 +118,7 @@ class RegistrationList(TemplateView):
 @login_required
 class SurveyResponseImport(FormView):
     form_class = SurveyResponseImportForm
-    template_name = 'survey_response_import.html'
+    template_name = 'j60adm/survey_response_import.html'
 
     def form_valid(self, form):
         resps = form.cleaned_data['responses']
@@ -131,7 +131,7 @@ class SurveyResponseImport(FormView):
 
 @login_required
 class SurveyResponseList(TemplateView):
-    template_name = 'survey_response_list.html'
+    template_name = 'j60adm/survey_response_list.html'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -159,7 +159,7 @@ class SurveyResponseList(TemplateView):
 
 @login_required
 class Email(TemplateView):
-    template_name = 'email.html'
+    template_name = 'j60adm/email.html'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -206,7 +206,7 @@ class Email(TemplateView):
 @login_required
 class EmailMessageCreate(FormView):
     form_class = EmailMessageCreateForm
-    template_name = 'emailmessage_create.html'
+    template_name = 'j60adm/emailmessage_create.html'
 
     def get_emailaddress(self):
         return get_object_or_404(EmailAddress, pk=self.kwargs['address'])
@@ -228,7 +228,7 @@ class EmailMessageCreate(FormView):
 @login_required
 class EmailAddressCreate(FormView):
     form_class = EmailAddressCreateForm
-    template_name = 'emailaddress_create.html'
+    template_name = 'j60adm/emailaddress_create.html'
 
     def get_person(self):
         return get_object_or_404(Person, pk=self.kwargs['person'])
@@ -253,7 +253,7 @@ class EmailAddressCreate(FormView):
 @login_required
 class EmailMessageBulkCreate(FormView):
     form_class = EmailMessageBulkCreateForm
-    template_name = 'emailmessage_bulkcreate.html'
+    template_name = 'j60adm/emailmessage_bulkcreate.html'
 
     def form_valid(self, form):
         a = form.cleaned_data['recipients']
@@ -289,7 +289,7 @@ class EmailSynchronize(View):
 
 @login_required
 class LetterBounce(TemplateView):
-    template_name = 'letter_bounce.html'
+    template_name = 'j60adm/letter_bounce.html'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)

@@ -1,8 +1,9 @@
-{% extends "base.html" %}
-{% block title %}Importér personer{% endblock %}
+{% extends "j60adm/base.html" %}
+{% block title %}Opret email{% endblock %}
 {% block content %}
-<h1>Importér personer</h1>
+<h1>Opret email</h1>
 <form method="post">{% csrf_token %}
+{{ emailaddress }}
 {{ form.as_p }}
 <input type="submit" />
 </form>
