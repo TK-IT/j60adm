@@ -1,7 +1,8 @@
 import logging
 from django.views.generic import (
-    FormView, ListView, DetailView, TemplateView, View,
+    FormView, ListView, DetailView, UpdateView, TemplateView, View,
 )
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 import django.contrib.auth.decorators
@@ -11,7 +12,7 @@ from j60adm.models import (
     EmailAddress, EmailMessage,
 )
 from j60adm.forms import (
-    RegistrationImportForm, SurveyResponseImportForm,
+    RegistrationImportForm, RegistrationShowForm, SurveyResponseImportForm,
     PersonImportForm, PersonNoteUpdateForm,
     EmailAddressCreateForm, EmailMessageCreateForm, EmailMessageBulkCreateForm,
 )
@@ -59,6 +60,25 @@ class PersonList(ListView):
 @login_required
 class PersonDetail(DetailView):
     model = Person
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        person = context_data['person']
+        registrations = list(person.registration_set.all())
+        for r in registrations:
+            r.form = RegistrationShowForm(instance=r)
+        context_data['registrations'] = registrations
+        return context_data
+
+
+@login_required
+class RegistrationShowUpdate(UpdateView):
+    form_class = RegistrationShowForm
+    model = Registration
+
+    def get_success_url(self):
+        return reverse('person_detail',
+                       kwargs=dict(pk=self.object.person.pk))
 
 
 @login_required

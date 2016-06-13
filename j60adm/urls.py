@@ -18,6 +18,7 @@ from django.contrib import admin
 from j60adm.views import (
     PersonImport, PersonList, PersonDetail, PersonNoteUpdate,
     RegistrationImport, RegistrationList,
+    RegistrationShowUpdate,
     SurveyResponseImport, SurveyResponseList,
     Email, EmailAddressCreate, EmailSynchronize,
     EmailMessageCreate, EmailMessageBulkCreate,
@@ -44,6 +45,8 @@ urlpatterns = [
         name='registration_import'),
     url(r'^registration/$', RegistrationList.as_view(),
         name='registration_list'),
+    url(r'^registration/(?P<pk>\d+)/show/$', RegistrationShowUpdate.as_view(),
+        name='registration_show_update'),
     url(r'^email/$', Email.as_view(),
         name='email'),
     url(r'^email/sync/$', EmailSynchronize.as_view(),

@@ -41,8 +41,11 @@ Ingen email sendt
 </table>
 
 <h2>Billetsalg</h2>
-{% for r in person.registration_set.all %}
-<p>Revyforestilling: {{ r.get_show_display }}</p>
+{% for r in registrations %}
+<form method="post" action="{% url 'registration_show_update' pk=r.pk %}">
+{% csrf_token %}
+<p>Revyforestilling: {{ r.form.show }} <input type="submit" value="Gem" /></p>
+</form>
 {% if r.show != r.webshop_show %}
 <p>Revyforestilling (oprindeligt i webshop): {{ r.get_webshop_show_display }}</p>
 {% endif %}

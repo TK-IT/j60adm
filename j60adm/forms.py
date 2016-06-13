@@ -2,6 +2,7 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 
+from j60adm.models import Registration
 from j60adm.parser import (
     parse_registrations, parse_survey_responses, parse_addresses_emails)
 
@@ -24,6 +25,16 @@ class RegistrationImportForm(forms.Form):
     def clean_registrations(self):
         csv_text = self.cleaned_data['registrations']
         return parse_registrations(csv_text)
+
+
+class RegistrationShowForm(forms.ModelForm):
+    class Meta:
+        model = Registration
+        fields = ('show',)
+
+    show = forms.ChoiceField(
+        choices=Registration._meta.get_field('show').choices,
+        required=True)
 
 
 class SurveyResponseImportForm(forms.Form):
