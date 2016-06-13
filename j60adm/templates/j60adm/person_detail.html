@@ -1,0 +1,66 @@
+{% extends "j60adm/base.html" %}
+{% block title %}{{ person.title_and_name }}{% endblock %}
+{% block content %}
+<h1>{{ person }}</h1>
+
+<form method="post" action="{% url 'person_note_update' person=person.id %}">
+{% csrf_token %}
+<input placeholder="Note" name="note" value="{{ person.note }}" />
+<input type="submit" value="Gem note" />
+</form>
+
+<table>
+<thead><tr><th>Titel</th><th>Årgang</th></tr></thead>
+<tbody>
+{% for t in person.title_set.all %}
+<tr><td>{{ t }}</td><td>{{ t.period }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+<table>
+<thead><tr><th>Emailadresse</th><th>Kilde</th><th>Email sendt</th></tr></thead>
+<tbody>
+{% for e in person.emailaddress_set.all %}
+<tr><td>{{ e|urlize }}</td><td>{{ e.source }}</td>
+<td>
+{% for m in e.emailmessage_set.all %}
+<span title="{{ m.created_time }}">
+{% if m.bounce %}
+Sendt, men bouncede
+{% else %}
+Sendt
+{% endif %}
+</span>
+{% empty %}
+Ingen email sendt
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>Billetsalg</h2>
+{% for r in person.registration_set.all %}
+<p>Revyforestilling: {{ r.get_show_display }}</p>
+{% if r.show != r.webshop_show %}
+<p>Revyforestilling (oprindeligt i webshop): {{ r.get_webshop_show_display }}</p>
+{% endif %}
+<p>Købstidspunkt: {{ r.time }}</p>
+<p>Kosthensyn: {{ r.dietary|default:"<i>Ingen opgivet</i>" }}</p>
+<p>Nyhedsbrev: {{ r.newsletter|yesno:"Ja tak,Nej tak" }}</p>
+<p>Transport: {{ r.transportation|yesno:"Ja tak,Nej tak" }}</p>
+<p>Webshop-ID: {{ r.survey_id }}</p>
+{% empty %}
+<p>{{ person }} har ikke købt billet.</p>
+{% endfor %}
+
+<h2>J60-nyhedsbrev</h2>
+{% for r in person.surveyresponse_set.all %}
+<p>Tilmeldingstidspunkt: {{ r.time }}</p>
+<p>Ønsker nyhedsbrev: {{ r.newsletter|yesno:"Ja tak,Nej tak" }}</p>
+{% empty %}
+<p>Ej tilmeldt nyhedsbrev via Google-formular.</p>
+{% endfor %}
+
+{% endblock %}

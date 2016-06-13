@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from j60adm.views import (
-    PersonImport, PersonList, PersonNoteUpdate,
+    PersonImport, PersonList, PersonDetail, PersonNoteUpdate,
     RegistrationImport, RegistrationList,
     SurveyResponseImport, SurveyResponseList,
     Email, EmailAddressCreate, EmailSynchronize,
@@ -30,6 +30,8 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^person/import/$', PersonImport.as_view(),
         name='person_import'),
+    url(r'^person/(?P<pk>\d+)/$', PersonDetail.as_view(),
+        name='person_detail'),
     url(r'^person/(?P<person>\d+)/note/$', PersonNoteUpdate.as_view(),
         name='person_note_update'),
     url(r'^$', PersonList.as_view(),

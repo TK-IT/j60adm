@@ -1,5 +1,7 @@
 import logging
-from django.views.generic import FormView, ListView, TemplateView, View
+from django.views.generic import (
+    FormView, ListView, DetailView, TemplateView, View,
+)
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 import django.contrib.auth.decorators
@@ -52,6 +54,11 @@ class PersonList(ListView):
                                  'title_set', 'emailaddress_set')
         qs = sorted(qs, key=lambda p: p.title_order_key())
         return qs
+
+
+@login_required
+class PersonDetail(DetailView):
+    model = Person
 
 
 @login_required

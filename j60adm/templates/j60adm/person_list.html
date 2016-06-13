@@ -22,7 +22,9 @@
 {{ t }}
 {% endfor %}
 </td>
-<td>{{ person }}</td>
+<td>
+<a href="{% url 'person_detail' pk=person.pk %}">
+{{ person }}</a></td>
 <td>
 {% for e in person.emailaddress_set.all %}
 <span title="{{ e.source }}">
