@@ -7,6 +7,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 import django.contrib.auth.decorators
+from django.conf import settings
+from django.http import HttpResponse
 
 from j60adm.models import (
     Registration, SurveyResponse, Person,
@@ -373,3 +375,12 @@ class LetterBounce(TemplateView):
                         extra=self.request.log_data)
             Person.objects.filter(id__in=remove).update(letter_bounced=False)
         return self.get(request)
+
+
+@login_required
+class Log(View):
+    def get(self, request):
+        filename = settings.LOGGING['handlers']['file']['filename']
+        with open(filename) as fp:
+            s = fp.read()
+        return HttpResponse(s, content_type='text/plain; charset=utf8')
