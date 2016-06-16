@@ -1,14 +1,15 @@
 {% extends "j60adm/base.html" %}
-{% load json %}
-{% load staticfiles %}
 {% block title %}Billetsalg{% endblock %}
 {% block head %}
-<script type="text/javascript" src="{% static 'index.js' %}"></script>
-<script type="text/javascript" src="{% static 'person_complete.js' %}"></script>
+<style>
+.reg-time { white-space: nowrap; }
+.reg-name { min-width: 150px; }
+</style>
 {% endblock %}
 {% block content %}
 <h1>Billetsalg</h1>
 <p><a href="{% url 'registration_import' %}">Importér CSV</a></p>
+<p><a href="{% url 'registration_person' %}">Angiv titler</a></p>
 <table>
 <thead>
 <tr><th>Forestilling</th><th>Gæster (faktisk)</th>
@@ -26,14 +27,15 @@
 </tbody>
 </table>
 
-<form method="post">{% csrf_token %}
 <h2>Gæsteliste</h2>
 <table>
 <thead>
 <tr>
+<th>ID</th>
+<th>Købstidspunkt</th>
 <th>Navn</th>
+<th>Titel</th>
 <th>Email</th>
-<th>Person</th>
 <th>Revy</th>
 <th>Særlig kost</th>
 <th>Transport</th>
@@ -43,14 +45,19 @@
 <tbody>
 {% for registration in object_list %}
 <tr>
-<td>{{ registration.name }}</td>
-<td>{{ registration.email }}</td>
+<td>{{ registration.survey_id }}</td>
+<td class="reg-time">{{ registration.time }}</td>
+<td class="reg-name">{{ registration.name }}</td>
 <td>
-<input size="10" name="object_{{ registration.id }}"
-value="{{ registration.person_id|default_if_none:'' }}"
-data-person-complete="{{ registration.dump|json }}"
-/>
+{% if registration.person %}
+{% for t in registration.person.title_set.all %}
+{{ t }}
+{% endfor %}
+{% else %}
+<a href="{% url 'registration_person' %}">?</a>
+{% endif %}
 </td>
+<td>{{ registration.email }}</td>
 <td>{{ registration.get_show_display }}
 {% if registration.show != registration.webshop_show %}
 (webshop: {{ registration.get_webshop_show_display }})
@@ -71,17 +78,4 @@ Ja tak
 {% endfor %}
 </tbody>
 </table>
-<input type="submit" value="Gem ændringer" />
-</form>
-<ul id="person-list">
-{% for person in person_list %}
-<li data-person="{{ person.dump|json|escape }}">
-{{ person.id }}:
-{% for title in person.title_set.all %}
-{{ title }}
-{% endfor %}
-{{ person.name }}
-</li>
-{% endfor %}
-</ul>
 {% endblock %}

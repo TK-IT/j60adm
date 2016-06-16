@@ -196,7 +196,19 @@ class RegistrationList(TemplateView):
                 webshop_limit=limit,
             ))
         context_data['counts'] = counts
+        return context_data
 
+
+@login_required
+class RegistrationPerson(TemplateView):
+    template_name = 'j60adm/registration_person.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        qs = Registration.objects.all()
+        qs = qs.order_by('person')
+        registrations = list(qs)
+        context_data['object_list'] = registrations
         qs = Person.objects.all()
         qs = qs.prefetch_related('title_set')
         context_data['person_list'] = qs
@@ -212,7 +224,7 @@ class RegistrationList(TemplateView):
                     r.person_id = int(v)
                     save.append(r)
         if save:
-            logger.info("RegistrationList updating %s registrations",
+            logger.info("RegistrationPerson updating %s registrations",
                         len(save), extra=self.request.log_data)
         for r in save:
             r.save()

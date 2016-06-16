@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from j60adm.views import (
     PersonImport, PersonList, PersonDetail, PersonNoteUpdate,
-    RegistrationImport, RegistrationList,
+    RegistrationImport, RegistrationList, RegistrationPerson,
     RegistrationShowUpdate,
     SurveyResponseImport, SurveyResponseList,
     Email, EmailAddressCreate, EmailSynchronize,
@@ -46,6 +46,8 @@ urlpatterns = [
         name='registration_import'),
     url(r'^registration/$', RegistrationList.as_view(),
         name='registration_list'),
+    url(r'^registration/person/$', RegistrationPerson.as_view(),
+        name='registration_person'),
     url(r'^registration/(?P<pk>\d+)/show/$', RegistrationShowUpdate.as_view(),
         name='registration_show_update'),
     url(r'^email/$', Email.as_view(),

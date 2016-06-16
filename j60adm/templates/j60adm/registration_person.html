@@ -1,0 +1,50 @@
+{% extends "j60adm/base.html" %}
+{% load json %}
+{% load staticfiles %}
+{% block title %}Billetsalg-titler{% endblock %}
+{% block head %}
+<script type="text/javascript" src="{% static 'index.js' %}"></script>
+<script type="text/javascript" src="{% static 'person_complete.js' %}"></script>
+{% endblock %}
+{% block content %}
+<h1>Billetsalg-titler</h1>
+<form method="post">{% csrf_token %}
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Navn</th>
+<th>Email</th>
+<th>Person</th>
+</tr>
+</thead>
+<tbody>
+{% for registration in object_list %}
+<tr>
+<td>{{ registration.survey_id }}</td>
+<td>{{ registration.name }}</td>
+<td>{{ registration.email }}</td>
+<td>
+<input size="10" name="object_{{ registration.id }}"
+value="{{ registration.person_id|default_if_none:'' }}"
+data-person-complete="{{ registration.dump|json }}"
+/>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<input type="submit" value="Gem ændringer" />
+</form>
+<ul id="person-list">
+{% for person in person_list %}
+<li data-person="{{ person.dump|json|escape }}">
+{{ person.id }}:
+{% for title in person.title_set.all %}
+{{ title }}
+{% endfor %}
+{{ person.name }}
+</li>
+{% endfor %}
+</ul>
+{% endblock %}
