@@ -59,6 +59,15 @@ class PersonList(ListView):
         qs = sorted(qs, key=lambda p: p.title_order_key())
         return qs
 
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        qs = context_data['object_list']
+        only_newsletter = sum(
+            1 for p in qs
+            if p.surveyresponse_set.all() and not p.registration_set.all())
+        context_data['only_newsletter'] = only_newsletter
+        return context_data
+
 
 @login_required
 class PersonDetail(DetailView):
