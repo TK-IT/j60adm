@@ -203,13 +203,19 @@ class RegistrationList(TemplateView):
         return context_data
 
     def post(self, request):
+        save = []
         for r in Registration.objects.all():
             k = 'object_%s' % r.id
             if k in request.POST:
                 v = request.POST[k]
                 if v:
                     r.person_id = int(v)
-                    r.save()
+                    save.append(r)
+        if save:
+            logger.info("RegistrationList updating %s registrations",
+                        len(save), extra=self.request.log_data)
+        for r in save:
+            r.save()
         return self.get(request)
 
 
