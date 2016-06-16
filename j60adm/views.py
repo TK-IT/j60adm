@@ -113,9 +113,51 @@ class RegistrationImport(FormView):
 
     def form_valid(self, form):
         regs = form.cleaned_data['registrations']
-        logger.info("RegistrationImport importing %s registrations", len(regs),
-                    extra=self.request.log_data)
+        reg_ids = [reg.survey_id for reg in regs]
+        qs = Registration.objects.filter(survey_id__in=reg_ids)
+        existing = {r.survey_id: r for r in qs}
+        errors = 0
+
+        save = []
+        create = []
+
         for reg in regs:
+            try:
+                ex = existing[reg.survey_id]
+            except KeyError:
+                create.append(reg)
+                continue
+            # Don't bother with time since timezones are hard
+            KEYS = ('survey_id first_name last_name email dietary ' +
+                    'newsletter transportation').split()
+            for k in KEYS:
+                if getattr(ex, k) != getattr(reg, k):
+                    form.add_error(
+                        'registrations',
+                        'Entry %s differs on %s: %s != %s' %
+                        (reg.survey_id, k, getattr(ex, k), getattr(reg, k)))
+                    errors += 1
+            if ex.webshop_show != reg.webshop_show:
+                # If the show attribute changed, it must have changed to 'refund'
+                if reg.webshop_show != 'refund':
+                    form.add_error(
+                        'registrations',
+                        'Entry %s: Show changed from %s to %s' %
+                        (reg.survey_id, ex.webshop_show, reg.webshop_show))
+                    errors += 1
+                ex.webshop_show = reg.webshop_show
+                ex.note += reg.note
+                save.append(ex)
+        if errors:
+            return self.form_invalid(form)
+        if create:
+            logger.info("RegistrationImport creating %s registrations",
+                        len(create), extra=self.request.log_data)
+        Registration.objects.bulk_create(create)
+        if save:
+            logger.info("RegistrationImport updating %s registrations",
+                        len(save), extra=self.request.log_data)
+        for reg in save:
             reg.save()
         return redirect('registration_list')
 
