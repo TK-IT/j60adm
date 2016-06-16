@@ -208,7 +208,7 @@ class RegistrationList(TemplateView):
             k = 'object_%s' % r.id
             if k in request.POST:
                 v = request.POST[k]
-                if v:
+                if v and r.person_id != int(v):
                     r.person_id = int(v)
                     save.append(r)
         if save:
