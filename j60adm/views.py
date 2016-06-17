@@ -1,18 +1,19 @@
+import re
 import logging
 from django.views.generic import (
     FormView, ListView, DetailView, UpdateView, TemplateView, View,
 )
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.utils.safestring import mark_safe
 import django.contrib.auth.decorators
 from django.conf import settings
 from django.http import HttpResponse
 
 from j60adm.models import (
     Registration, SurveyResponse, Person,
-    EmailAddress, EmailMessage,
+    EmailAddress, EmailMessage, Title,
 )
 from j60adm.forms import (
     RegistrationImportForm, RegistrationShowForm, SurveyResponseImportForm,
@@ -453,3 +454,52 @@ class Log(View):
         with open(filename) as fp:
             s = fp.read()
         return HttpResponse(s, content_type='text/plain; charset=utf8')
+
+
+@login_required
+class TitleImport(TemplateView):
+    template_name = 'j60adm/title_import.html'
+
+    def post(self, request):
+        s = request.POST['titles']
+        lines = s.splitlines()
+        create = []
+        for line in lines:
+            j = 0
+            titles = []
+            for mo in re.finditer(Title.pattern, line):
+                i = mo.start(0)
+                if i != j:
+                    raise ValidationError("Unparsed: %r in %r" %
+                                          (line[j:i], line))
+                j = mo.end(0)
+                try:
+                    titles.append(Title.parse(mo.group(0)))
+                except ValueError as exn:
+                    raise ValidationError(*exn.args)
+            if j != len(line):
+                raise ValidationError("Unparsed end: %r" % (line[j:],))
+            if len(titles) <= 1:
+                continue
+            new = []
+            persons = set()
+
+            for t in titles:
+                try:
+                    ex = Title.objects.get(period=t.period, title=t.title)
+                except Title.DoesNotExist:
+                    new.append(t)
+                else:
+                    persons.add(ex.person)
+            if len(persons) != 1:
+                raise ValidationError(
+                    "Persons with title %s: %s" % (titles, persons))
+            person, = persons
+            for d in new:
+                d.person = person
+            create.extend(new)
+        if create:
+            logger.info("TitleImport creating %s titles", len(create),
+                        extra=self.request.log_data)
+        Title.objects.bulk_create(create)
+        return self.get(request)

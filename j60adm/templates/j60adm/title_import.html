@@ -1,0 +1,9 @@
+{% extends "j60adm/base.html" %}
+{% block title %}Importér titler{% endblock %}
+{% block content %}
+<h1>Importér titler</h1>
+<form method="post">{% csrf_token %}
+<textarea name="titles"></textarea>
+<input type="submit" />
+</form>
+{% endblock %}

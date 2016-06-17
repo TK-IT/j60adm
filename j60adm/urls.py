@@ -23,6 +23,7 @@ from j60adm.views import (
     Email, EmailAddressCreate, EmailSynchronize,
     EmailMessageCreate, EmailMessageBulkCreate,
     LetterBounce,
+    TitleImport,
     Log,
 )
 
@@ -62,6 +63,8 @@ urlpatterns = [
         name='emailmessage_bulkcreate'),
     url(r'^letterbounce/$', LetterBounce.as_view(),
         name='letter_bounce'),
+    url(r'^titleimport/$', TitleImport.as_view(),
+        name='title_import'),
     url(r'^log/$', Log.as_view(), name='log'),
 ]
 
