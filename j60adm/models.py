@@ -120,7 +120,7 @@ class Title(models.Model):
         ])
 
     class Meta:
-        ordering = ['period', 'title']
+        ordering = ['-period', 'title']
 
 
 @python_2_unicode_compatible
