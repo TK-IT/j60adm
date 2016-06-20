@@ -48,7 +48,7 @@ class Person(models.Model):
         then by BEST < FU < EFU, and then alphabetically by title.
         """
         try:
-            t = min(self.title_set.all(), key=lambda t: t.period)
+            t = max(self.title_set.all(), key=lambda t: t.period)
             return (1, -t.period, t.title.startswith('EFU'),
                     t.title.startswith('FU'), t.title)
         except ValueError:
