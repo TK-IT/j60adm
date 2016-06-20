@@ -44,7 +44,7 @@ class Person(models.Model):
 
     def title_order_key(self):
         """
-        Order persons without title first (alphabetically by name).
+        Order persons without title last (alphabetically by name).
         Order persons by their latest title by period,
         then by BEST < FU < EFU, and then alphabetically by title.
         """
@@ -54,8 +54,8 @@ class Person(models.Model):
                     t.title.startswith('FU'), t.title)
         except ValueError:
             # min() raised ValueError because of an empty sequence.
-            # Order persons without a title before persons with a title.
-            return (0, self.name)
+            # Order persons without a title after persons with a title.
+            return (2, self.name)
 
     def title_and_name(self):
         p = [str(t) for t in self.title_set.all()]
