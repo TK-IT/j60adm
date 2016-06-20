@@ -1,4 +1,5 @@
 # vim: set fileencoding=utf8: from __future__ import unicode_literals
+import re
 import collections
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -78,6 +79,15 @@ class Person(models.Model):
 
 @python_2_unicode_compatible
 class Title(models.Model):
+    prefix_term_pattern = r'(?:[KGBTO]\d*)'
+    prefix_pattern = '(?:%s)*' % (prefix_term_pattern,)
+    canonical_prefix_pattern = '(?:|G|B|O|TO|T\d+O)'
+    modern_title_pattern = (
+        '(?:CERM|FORM|INKA|KASS|NF|PR|SEKR|VC|E?FU\w{2})')
+    title_pattern = (
+        '(?:%s|OFULD|BEST|FU|TVC)' % (modern_title_pattern,))
+    pattern = canonical_prefix_pattern + title_pattern
+
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     period = models.IntegerField()
@@ -89,6 +99,38 @@ class Title(models.Model):
     @property
     def age(self):
         return self.association.current_period - self.period
+
+    @classmethod
+    def parse(cls, s):
+        """
+        >>> Title.parse('T40OSEKR').age
+        43
+        >>> Title.parse('T40OSEKR').title
+        'SEKR'
+        >>> Title.parse('T40OKASS').title
+        'KASS'
+        >>> Title.parse('OOFULD').title
+        'OFULD'
+        """
+        i = 0
+        age = 0
+        prefixes = dict(zip('KGBOT', [-1, 1, 2, 3, 1]))
+        p = '^(%s|%s)(%s)$' % (cls.canonical_prefix_pattern,
+                               cls.prefix_pattern, cls.title_pattern)
+        mo = re.match(p, s)
+        if mo is None:
+            raise ValidationError("Couldn't parse %r" % (s,))
+        prefix_part = mo.group(1)
+        title = mo.group(2)
+        for mo in re.finditer(cls.prefix_term_pattern, prefix_part):
+            p = mo.group(0)
+            if len(p) == 1:
+                age += prefixes[p]
+            else:
+                age += prefixes[p[0]] * int(p[1:])
+
+        period = Association.get().current_period - age
+        return cls(period=period, title=title)
 
     @staticmethod
     def sup(n):
