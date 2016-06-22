@@ -1,4 +1,5 @@
 {% extends "j60adm/base.html" %}
+{% load json %}
 {% block title %}Personer{% endblock %}
 {% block content %}
 <h1>J60-gæsteliste</h1>
@@ -17,12 +18,14 @@
 </tr>
 <tbody>
 {% for person in object_list %}
-<tr>
+<tr data-person="{{ person.dump|json }}">
 <td>
+<ul class="title-list">
 {% for t in person.title_set.all %}
-{{ t }}
+<li data-title="{{ t.dump|json }}">
+<span class="title-prefix">{{ t.prefix }}</span><span class="title-title">{{ t.title }}</span></li>
 {% endfor %}
-</td>
+</ul>
 <td>
 <a href="{% url 'person_detail' pk=person.pk %}">
 {{ person }}</a></td>
