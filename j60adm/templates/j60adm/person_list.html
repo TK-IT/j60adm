@@ -1,13 +1,73 @@
 {% extends "j60adm/base.html" %}
 {% load json %}
 {% block title %}Personer{% endblock %}
+{% block head %}
+<script>
+function any_title(fn) {
+	return function (person) {
+		for (var i = 0; i < person.titles.length; ++i)
+			if (fn(person.titles[i])) return true;
+		return false;
+	};
+}
+function parse_search_term(v) {
+	v = v.trim();
+	if (v.length === 0) {
+		return function (person) { return true; };
+	}
+	var mo = /(?:19|20)\d\d/.exec(v);
+	if (mo !== null) {
+		var period = parseInt(mo[0]);
+		return any_title(
+			function (title) {
+				return title.period === period;
+			});
+	}
+	var mo = /G|B|O|TO|T\d+O/i.exec(v);
+	if (mo !== null) {
+		var ages = {'G': 1, 'B': 2, 'O': 3, 'TO': 4};
+		var age = (v.length <= 2) ? ages[v] : (3 + parseInt(v.substring(1, v.length - 1)));
+		console.log("Search for age", age);
+		return any_title(
+			function (title) {
+				return title.age === age;
+			});
+	}
+	return function (person) { return false; };
+}
+function search_person_list(v, persons) {
+	var matcher = parse_search_term(v);
+	for (var i = 0; i < persons.length; ++i) {
+		persons[i].el.style.display = matcher(persons[i].data) ? '' : 'none';
+	}
+}
+function init() {
+	var el = document.getElementById('person-list');
+	var rows = el.tBodies[0].rows;
+	var persons = [];
+	for (var i = 0; i < rows.length; ++i) {
+		persons.push({'data': JSON.parse(rows[i].getAttribute('data-person')),
+				'el': rows[i]});
+	}
+	var searcher = document.getElementById('search');
+	searcher.addEventListener(
+		'keyup',
+		function onkeyup(ev) {
+			search_person_list(searcher.value, persons);
+			return false;
+		}, false);
+}
+window.addEventListener('load', init, false);
+</script>
+{% endblock %}
 {% block content %}
 <h1>J60-gæsteliste</h1>
 <p>
 <a href="{% url 'letter_bounce' %}">Breve kommet retur</a>
 </p>
 <p>Tilmeldt nyhedsbrev, men har ikke købt billet: {{ only_newsletter }}</p>
-<table>
+<p>Søg: <input id="search" /></p>
+<table id="person-list">
 <thead>
 <tr>
     <th>Titel</th><th>Navn</th>
