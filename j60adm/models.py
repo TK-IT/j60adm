@@ -149,8 +149,12 @@ class Title(models.Model):
         else:
             return 'T%sO' % sup_fn(age - 3)
 
+    @property
+    def prefix(self):
+        return self.tk_prefix(self.age)
+
     def __str__(self):
-        return '%s%s' % (self.tk_prefix(self.age), self.title)
+        return '%s%s' % (self.prefix, self.title)
 
     def dump(self):
         return collections.OrderedDict([
