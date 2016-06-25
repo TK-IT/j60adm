@@ -3,6 +3,16 @@
 {% block title %}Personer{% endblock %}
 {% block head %}
 <script>
+
+function replace_sups(s) {
+	if (!/[⁰¹²³⁴⁵⁶⁷⁸⁹]/.exec(s)) return s;
+	var sups = [].slice.call('⁰¹²³⁴⁵⁶⁷⁸⁹');
+	for (var i = 0; i < sups.length; ++i) {
+		s = s.replace(new RegExp(sups[i], 'g'), i + '');
+	}
+	return s;
+}
+
 function any_title(fn) {
 	return function (person) {
 		for (var i = 0; i < person.titles.length; ++i)
@@ -10,12 +20,31 @@ function any_title(fn) {
 		return false;
 	};
 }
+
+function any(conds) {
+	return function (person) {
+		for (var i = 0; i < conds.length; ++i)
+			if (conds[i](person)) return true;
+		return false;
+	};
+}
+
+function startswith(x, y) {
+	return x.substring(0, y.length) === y;
+}
+
+function search_in_search_text(v) {
+	return function (person) {
+		return person.search_text.indexOf(v.toLowerCase()) !== -1;
+	};
+}
+
 function parse_search_term(v) {
 	v = v.trim();
 	if (v.length === 0) {
 		return function (person) { return true; };
 	}
-	var mo = /(?:19|20)\d\d/.exec(v);
+	var mo = /^(?:(?:19|20)\d\d)$/.exec(v);
 	if (mo !== null) {
 		var period = parseInt(mo[0]);
 		return any_title(
@@ -23,31 +52,52 @@ function parse_search_term(v) {
 				return title.period === period;
 			});
 	}
-	var mo = /G|B|O|TO|T\d+O/i.exec(v);
+	var title_filter = '#CERM#EFUIT#FORM#INKA#KASS#NF#PR#SEKR';
+	var mo = /^(G\*|G|B|O|TO|T\d+O|(?=[CEFIKNPS]))(.*)$/i.exec(v);
 	if (mo !== null) {
-		var ages = {'G': 1, 'B': 2, 'O': 3, 'TO': 4};
-		var age = (v.length <= 2) ? ages[v] : (3 + parseInt(v.substring(1, v.length - 1)));
-		console.log("Search for age", age);
-		return any_title(
-			function (title) {
-				return title.age === age;
-			});
+		var prefix = mo[1].toUpperCase();
+		var root = mo[2].toUpperCase();
+		var ages = {'G*': null, '': 0, 'G': 1, 'B': 2, 'O': 3, 'TO': 4};
+		var age;
+		if (prefix.length <= 2) age = ages[prefix];
+		else age = 3 + parseInt(prefix.substring(1, prefix.length - 1));
+		if (prefix !== '' || title_filter.indexOf('#'+root) !== -1 || root === 'FU' || root === 'FUAN') {
+			return any_title(
+				function (title) {
+					return (age === null || title.age === age) &&
+						startswith(title.title, root);
+				});
+		}
 	}
-	return function (person) { return false; };
+	return search_in_search_text(v);
 }
+
 function search_person_list(v, persons) {
 	var matcher = parse_search_term(v);
 	for (var i = 0; i < persons.length; ++i) {
-		persons[i].el.style.display = matcher(persons[i].data) ? '' : 'none';
+		if (matcher(persons[i].data))
+			persons[i].el.classList.remove('mismatch');
+		else
+			persons[i].el.classList.add('mismatch');
 	}
 }
+
 function init() {
 	var el = document.getElementById('person-list');
 	var rows = el.tBodies[0].rows;
 	var persons = [];
 	for (var i = 0; i < rows.length; ++i) {
-		persons.push({'data': JSON.parse(rows[i].getAttribute('data-person')),
-				'el': rows[i]});
+		var p = {
+			'data': JSON.parse(rows[i].getAttribute('data-person')),
+			'el': rows[i]
+		};
+		var text = [p.data.name];
+		for (var j = 0; j < p.data.titles.length; ++j) {
+			if (startswith(p.data.titles[j].title, 'FU'))
+				text.push(p.data.titles[j].title);
+		}
+		p.data.search_text = text.join('#').toLowerCase();
+		persons.push(p);
 	}
 	var searcher = document.getElementById('search');
 	searcher.addEventListener(
@@ -57,8 +107,13 @@ function init() {
 			return false;
 		}, false);
 }
+
 window.addEventListener('load', init, false);
 </script>
+<style>
+.mismatch { display: none; }
+#person-list { width: 100%; }
+</style>
 {% endblock %}
 {% block content %}
 <h1>J60-gæsteliste</h1>
