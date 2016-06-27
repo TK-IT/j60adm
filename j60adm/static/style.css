@@ -15,6 +15,9 @@ h1 {
 table {
 	border-collapse: collapse;
 }
+table.wide-table {
+    width: 100%;
+}
 td, th {
 	padding: 8px;
 	border-bottom: 1px solid #eee;
