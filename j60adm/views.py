@@ -179,7 +179,16 @@ class RegistrationList(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         qs = Registration.objects.all()
-        qs = qs.order_by('person')
+        if self.request.GET.get('o') == 'dietary':
+            qs = qs.exclude(dietary='')
+        elif self.request.GET.get('o') == 'transportation':
+            qs = qs.exclude(transportation='')
+        if self.request.GET.get('o') == 'time':
+            qs = qs.order_by('-survey_id')
+        elif self.request.GET.get('o') == 'show':
+            qs = qs.order_by('show')
+        else:
+            qs = qs.order_by('person', '-survey_id')
         registrations = list(qs)
         context_data['object_list'] = registrations
 
