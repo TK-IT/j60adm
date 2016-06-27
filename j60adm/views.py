@@ -44,7 +44,7 @@ class PersonImport(FormView):
             o.person = o.person  # Update o.person_id
             o.save()
         for m in messages:
-            m.recipient = o.recipient  # Update o.recipient_id
+            m.recipient = m.recipient  # Update o.recipient_id
             m.save()
         return redirect('person_list')
 
