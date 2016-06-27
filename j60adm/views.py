@@ -324,6 +324,7 @@ class Email(TemplateView):
                 if any(m.bounce for m in a.emailmessage_set.all())))
         recipients = []
         for p in by_state['new']:
+            # TODO fix race condition by only retrieving emailaddress_set once
             emailaddress = next(
                 a.address for a in p.emailaddress_set.all()
                 if not list(a.emailmessage_set.all()))
