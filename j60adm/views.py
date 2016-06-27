@@ -225,7 +225,7 @@ class RegistrationPerson(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         qs = Registration.objects.all()
-        qs = qs.order_by('person')
+        qs = qs.order_by('person', '-survey_id')
         registrations = list(qs)
         context_data['object_list'] = registrations
         qs = Person.objects.all()
