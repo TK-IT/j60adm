@@ -191,15 +191,15 @@ def parse_registration_time_naive(time):
     """
     >>> parse_registration_time_naive("03-06-2016 22:38:50")
     datetime.datetime(2016, 6, 3, 22, 38, 50)
+    >>> parse_registration_time_naive("bla")
+    Traceback (most recent call last):
+    ...
+    django.core.exceptions.ValidationError: ['Invalid time: bla']
     """
-
-    mo = re.match(r'(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)', time)
-    if mo is None:
+    try:
+        return datetime.datetime.strptime(time, '%d-%m-%Y %H:%M:%S')
+    except ValueError:
         raise ValidationError("Invalid time: %s" % (time,))
-    day, month, year, hour, minute, second = mo.groups()
-    time = datetime.datetime(int(year), int(month), int(day),
-                             int(hour), int(minute), int(second))
-    return time
 
 
 def parse_registration_time(time):
