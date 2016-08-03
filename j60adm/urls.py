@@ -23,6 +23,7 @@ from j60adm.views import (
     Email, EmailAddressCreate, EmailSynchronize,
     EmailMessageCreate, EmailMessageBulkCreate,
     LetterBounce,
+    PersonMessage,
     TitleImport,
     Log,
 )
@@ -35,6 +36,8 @@ urlpatterns = [
         name='person_import'),
     url(r'^person/(?P<pk>\d+)/$', PersonDetail.as_view(),
         name='person_detail'),
+    url(r'^person/(?P<pk>\d+)/email/$', PersonMessage.as_view(),
+        name='person_message'),
     url(r'^person/(?P<person>\d+)/note/$', PersonNoteUpdate.as_view(),
         name='person_note_update'),
     url(r'^$', PersonList.as_view(),

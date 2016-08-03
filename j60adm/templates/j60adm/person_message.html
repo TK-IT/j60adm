@@ -1,0 +1,39 @@
+{% extends "j60adm/base.html" %}
+{% block title %}{{ person.title_and_name }}{% endblock %}
+{% block content %}
+<h1>{{ person }}</h1>
+
+<ul>
+{% for address in person.emailaddress_set.all %}
+{% for message in address.emailmessage_set.all %}
+{% if message.bounce %}{% else %}
+<li><a href="mailto:{{ address.address }}">{{ address.address }}</a></li>
+{% endif %}
+{% endfor %}
+{% endfor %}
+</ul>
+
+<textarea rows="100" cols="90">
+Hej {{ person }}
+
+Vi kan se du har meldt dig til vores jubilæumsfest og -revy, og det er vi glade for! Vi er ikke desperate, men den sætning afslører for meget. Billetsalget lukker i øvrigt 1. september.
+
+Vi glæder os til at se dig!
+
+På vegne af J60-udvalgets koordineringsgruppe
+{{ user.first_name }} {{ user.last_name }}
+{% for board in boards %}
+Fra din bestyrelse {{ board.year }} har følgende endnu ikke købt billet:
+{% for p in board.not_registered %}
+{{ p.name }} &lt;{{ p.email }}&gt;{% endfor %}
+{% if board.no_email %}
+Følgende har vi ikke nogen emailadresse på, så dem har vi slet ikke haft email-kontakt til:
+{% for p in board.no_email %}
+{{ p.name }}{% endfor %}
+{% endif %}{% if board.registered %}
+Følgende har allerede købt billet:
+{% for p in board.registered %}
+{{ p.name }} &lt;{{ p.email }}&gt;{% endfor %}
+{% endif %}{% endfor %}
+</textarea>
+{% endblock %}

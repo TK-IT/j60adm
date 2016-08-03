@@ -85,6 +85,53 @@ class PersonDetail(DetailView):
 
 
 @login_required
+class PersonMessage(DetailView):
+    template_name = 'j60adm/person_message.html'
+    model = Person
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        person = context_data['person']
+
+        boards = []
+        titles = person.title_set.all()
+        titles = titles.order_by('period')
+        for title in titles:
+            year = '%04d/%02d' % (title.period, (title.period + 1) % 100)
+            board_titles = Title.objects.filter(period=title.period)
+            board_titles = board_titles.exclude(pk=title.pk)
+            board_titles = board_titles.select_related('person')
+            not_registered = []
+            no_email = []
+            registered = []
+            for board_title in board_titles:
+                board_person = board_title.person
+                name = '%s %s' % (board_title.title, board_person.name)
+
+                email_messages = EmailMessage.objects.filter(
+                    recipient__person=board_person, bounce=False)
+                try:
+                    email_address = email_messages[0].recipient.address
+                except IndexError:
+                    email_address = None
+
+                registration = Registration.objects.filter(person=board_person)
+                if registration.exists():
+                    registered.append(
+                        dict(name=name, email=email_address))
+                elif email_address is not None:
+                    not_registered.append(
+                        dict(name=name, email=email_address))
+                else:
+                    no_email.append(dict(name=name))
+            boards.append(dict(
+                year=year, not_registered=not_registered,
+                no_email=no_email, registered=registered))
+        context_data['boards'] = boards
+        return context_data
+
+
+@login_required
 class RegistrationShowUpdate(UpdateView):
     form_class = RegistrationShowForm
     model = Registration
