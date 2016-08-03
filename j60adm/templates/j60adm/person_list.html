@@ -129,6 +129,7 @@ window.addEventListener('load', init, false);
     <th><a href="{% url 'email' %}">Emailadresse</a></th>
     <th><a href="{% url 'registration_list' %}">Billetsalg</a></th>
     <th><a href="{% url 'survey_response_list' %}">Nyhedsbrev</a></th>
+    <th>Email</th>
     <th>Note</th>
 </tr>
 <tbody>
@@ -174,6 +175,7 @@ Nej tak
 {% endif %}
 {% endfor %}
 </td>
+<td><a href="{% url 'person_message' pk=person.id %}">Email</a></td>
 <td>
 <form method="post" action="{% url 'person_note_update' person=person.id %}">
 {% csrf_token %}
