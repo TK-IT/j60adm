@@ -100,6 +100,7 @@ class PersonMessage(DetailView):
             year = '%04d/%02d' % (title.period, (title.period + 1) % 100)
             board_titles = Title.objects.filter(period=title.period)
             board_titles = board_titles.exclude(pk=title.pk)
+            board_titles = board_titles.filter(person__dead=False)
             board_titles = board_titles.select_related('person')
             not_registered = []
             no_email = []
