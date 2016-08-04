@@ -4,12 +4,8 @@
 <h1>{{ person }}</h1>
 
 <ul>
-{% for address in person.emailaddress_set.all %}
-{% for message in address.emailmessage_set.all %}
-{% if message.bounce %}{% else %}
-<li><a href="mailto:{{ address.address }}">{{ address.address }}</a></li>
-{% endif %}
-{% endfor %}
+{% for registration in person.registration_set.all %}
+<li><a href="mailto:{{ registration.email }}">{{ registration.email }}</a></li>
 {% endfor %}
 </ul>
 
