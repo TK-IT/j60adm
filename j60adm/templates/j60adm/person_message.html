@@ -22,18 +22,20 @@ Vi glæder os til at se dig!
 
 På vegne af J60-udvalgets koordineringsgruppe
 {{ user.first_name }} {{ user.last_name }}
-{% for board in boards %}
+{% for board in boards %}{% if board.registered %}
+Fra din bestyrelse {{ board.year }} har følgende allerede købt billet:
+{% for p in board.registered %}
+{{ p.name }} &lt;{{ p.email }}&gt;{% endfor %}
+
+Følgende har endnu ikke købt billet:
+{% else %}
 Fra din bestyrelse {{ board.year }} har følgende endnu ikke købt billet:
-{% for p in board.not_registered %}
+{% endif %}{% for p in board.not_registered %}
 {{ p.name }} &lt;{{ p.email }}&gt;{% endfor %}
 {% if board.no_email %}
 Følgende har vi ikke nogen emailadresse på, så dem har vi slet ikke haft email-kontakt til:
 {% for p in board.no_email %}
 {{ p.name }}{% endfor %}
-{% endif %}{% if board.registered %}
-Følgende har allerede købt billet:
-{% for p in board.registered %}
-{{ p.name }} &lt;{{ p.email }}&gt;{% endfor %}
 {% endif %}{% endfor %}
 </textarea>
 {% endblock %}
