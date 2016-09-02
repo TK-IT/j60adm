@@ -1,8 +1,10 @@
-# vim: set fileencoding=utf8: from __future__ import unicode_literals
+# vim: set fileencoding=utf8:
+from __future__ import unicode_literals
 import re
 import collections
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.core.exceptions import ValidationError
 
 
 @python_2_unicode_compatible
