@@ -175,7 +175,11 @@ Nej tak
 {% endif %}
 {% endfor %}
 </td>
-<td><a href="{% url 'person_message' pk=person.id %}">Email</a></td>
+<td>
+{% if person.registration_set.all %}
+<a href="{% url 'person_message' pk=person.id %}">Email</a>
+{% endif %}
+</td>
 <td>
 <form method="post" action="{% url 'person_note_update' person=person.id %}">
 {% csrf_token %}
