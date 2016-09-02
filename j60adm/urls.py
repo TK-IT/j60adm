@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from j60adm.views import (
     PersonImport, PersonList, PersonDetail, PersonNoteUpdate,
+    PersonListExport,
     RegistrationImport, RegistrationList, RegistrationPerson,
     RegistrationShowUpdate,
     SurveyResponseImport, SurveyResponseList,
@@ -41,6 +42,8 @@ urlpatterns = [
     url(r'^person/(?P<person>\d+)/note/$', PersonNoteUpdate.as_view(),
         name='person_note_update'),
     url(r'^$', PersonList.as_view(),
+        name='person_list'),
+    url(r'^j60\.csv$', PersonListExport.as_view(),
         name='person_list'),
     url(r'^survey/import/$', SurveyResponseImport.as_view(),
         name='survey_response_import'),

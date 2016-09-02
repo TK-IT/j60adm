@@ -1,5 +1,8 @@
+import io
 import re
+import csv
 import logging
+import datetime
 from django.views.generic import (
     FormView, ListView, DetailView, UpdateView, TemplateView, View,
 )
@@ -68,6 +71,39 @@ class PersonList(ListView):
             if p.surveyresponse_set.all() and not p.registration_set.all())
         context_data['only_newsletter'] = only_newsletter
         return context_data
+
+
+class PersonListExport(PersonList):
+    content_type = 'text/csv'
+
+    header = ('Årgang', 'Titel', 'Navn', 'Email', 'Revy', 'Billet', 'Kost')
+
+    def render_row(self, person):
+        registrations = person.registration_set.all()
+        registrations = [r for r in registrations if r.show != 'refund']
+        emailaddresses = person.emailaddress_set.all()
+        titles = person.title_set.all()
+        period = next((str(t.period) for t in titles), '')
+        return (
+            period,
+            ', '.join('%s%s' % (t.prefix, t.title) for t in titles),
+            str(person),
+            ' '.join([r.email for r in registrations] or
+                     [e.address for e in emailaddresses
+                      if any(not m.bounce for m in e.emailmessage_set.all())]),
+            ' '.join(r.get_show_display() for r in registrations),
+            ' '.join(r.survey_id for r in registrations),
+            ' '.join(r.dietary for r in registrations),
+        )
+
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs.setdefault('content_type', self.content_type)
+        buf = io.StringIO()
+        writer = csv.writer(buf, 'excel-tab')
+        writer.writerow(self.header + (str(datetime.datetime.now()),))
+        for person in context['object_list']:
+            writer.writerow(self.render_row(person))
+        return HttpResponse(buf.getvalue(), **response_kwargs)
 
 
 @login_required
