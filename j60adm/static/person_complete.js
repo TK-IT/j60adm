@@ -131,7 +131,7 @@ function setup_person_complete(persons, indexOf, outputElement) {
     function update() {
         var v = inputElement.value.trim();
         console.log(v);
-        if (v === '') set_person(null);
+        if (v === '') return set_person(null);
         var i = indexOf(v);
         if (i !== -1) set_person(persons[i]);
     }
