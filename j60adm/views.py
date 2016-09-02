@@ -255,6 +255,8 @@ class RegistrationList(TemplateView):
                     limit = '∞ − %s' % (show_count - webshop_count)
                 else:
                     limit = '∞ + %s' % (webshop_count - show_count)
+            if key == 'first':
+                limit -= 15
             counts.append(dict(
                 key=key,
                 label=label,
