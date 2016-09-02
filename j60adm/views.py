@@ -230,7 +230,7 @@ class RegistrationList(TemplateView):
         if self.request.GET.get('o') == 'dietary':
             qs = qs.exclude(dietary='')
         elif self.request.GET.get('o') == 'transportation':
-            qs = qs.exclude(transportation='')
+            qs = qs.exclude(transportation=False)
         if self.request.GET.get('o') == 'time':
             qs = qs.order_by('-survey_id')
         elif self.request.GET.get('o') == 'show':
