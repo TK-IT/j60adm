@@ -1,0 +1,16 @@
+{% extends "j60adm/base.html" %}
+{% block title %}Nyhedsbrev-modtagere{% endblock %}
+{% block content %}
+<h1>Nyhedsbrev-modtagere</h1>
+
+<p>Ja tak til nyhedsbrev:</p>
+
+<textarea>{% for name, address in optin %}"{{ name }}" &lt;{{ address }}&gt;,
+{% endfor %}</textarea>
+
+<p>Mails om fest:</p>
+
+<textarea>{% for name, address in all %}"{{ name }}" &lt;{{ address }}&gt;,
+{% endfor %}</textarea>
+
+{% endblock %}

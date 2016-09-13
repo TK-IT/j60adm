@@ -379,6 +379,42 @@ class SurveyResponseList(TemplateView):
 
 
 @login_required
+class NewsletterAddressList(TemplateView):
+    template_name = 'j60adm/newsletter_address_list.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        recipients_optin = []
+        recipients_all = []
+        qs = Person.objects.all()
+        qs = qs.prefetch_related('registration_set', 'surveyresponse_set')
+        for p in qs:
+            email_address = name = optin = None
+            for s in p.surveyresponse_set.all():
+                name = s.name.strip()
+                email_address = s.email
+                if s.newsletter:
+                    optin = True
+                    break
+                else:
+                    optin = False
+            else:
+                for r in p.registration_set.all():
+                    name = ('%s %s' % (r.first_name, r.last_name)).strip()
+                    optin = False
+                    email_address = r.email
+                    break
+            if optin is None:
+                continue
+            elif optin:
+                recipients_optin.append((name, email_address))
+            recipients_all.append((name, email_address))
+        context_data['optin'] = recipients_optin
+        context_data['all'] = recipients_all
+        return context_data
+
+
+@login_required
 class Email(TemplateView):
     template_name = 'j60adm/email.html'
 
